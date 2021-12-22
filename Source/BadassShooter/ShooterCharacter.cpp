@@ -3,6 +3,7 @@
 
 #include "ShooterCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -14,7 +15,12 @@ AShooterCharacter::AShooterCharacter()
 	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
 	CameraSpringArm->SetupAttachment(RootComponent);
 	CameraSpringArm->TargetArmLength = 300.f;
-	CameraSpringArm->bUsePawnControlRotation = true;
+	CameraSpringArm->bUsePawnControlRotation = true; // Rotate arm based on controller
+
+	// Create Camera attached to spring arm
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(CameraSpringArm, USpringArmComponent::SocketName);
+	Camera->bUsePawnControlRotation = false; // Camera does NOT rotate relative to the spring arm
 
 }
 
