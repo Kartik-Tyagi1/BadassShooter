@@ -23,6 +23,12 @@ protected:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 
+	/* Functions to move the camera around with the arrow keys and controller right stick 
+	* @param Rate: Normalized movement rate in degrees/sec (Value of 1.0 is equal to 100%) which comes from axis input value
+	*/
+	void TurnAtRate(float Rate);
+	void LookUpRate(float Rate);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -36,6 +42,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
+
+	/* Value that determines the speed at which player can look around with arrow keys and controller right stick */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	float LookAroundRate;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
