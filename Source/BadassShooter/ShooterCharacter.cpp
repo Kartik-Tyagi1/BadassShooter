@@ -5,6 +5,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+#include "Engine/SkeletalMeshSocket.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
@@ -104,6 +107,26 @@ void AShooterCharacter::LookUpRate(float Rate)
 void AShooterCharacter::FireWeapon()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Fire Button Pressed"));
+	if (RevolverSound)
+	{
+		UGameplayStatics::PlaySound2D(this, RevolverSound);
+	}
+	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("RevolverBarrelSocket"));
+	if (BarrelSocket)
+	{
+		FTransform BarrelSocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+		if (RevolverMuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RevolverMuzzleFlash, BarrelSocketTransform);
+		}
+	}
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HipFireMontage)
+	{
+		AnimInstance->Montage_Play(HipFireMontage);
+		AnimInstance->Montage_JumpToSection(TEXT("StartFire"));
+	}
+
 }
 
 
