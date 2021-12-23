@@ -19,6 +19,7 @@ public:
 	virtual void NativeInitializeAnimation() override;
 
 	/* Tick of the AnimInstance Class */
+	UFUNCTION(BlueprintCallable)
 	void UpdateAnimationProperties(float DeltaTime);
 
 private:
@@ -26,7 +27,7 @@ private:
 	class AShooterCharacter* ShooterCharacter;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-	float MovementSpeed;
+	float CharacterSpeed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	bool bIsInAir;

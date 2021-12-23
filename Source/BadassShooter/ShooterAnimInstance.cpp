@@ -22,7 +22,7 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		// Determine MovementSpeed 
 		FVector Velocity = ShooterCharacter->GetCharacterMovement()->Velocity;
 		Velocity.Z = 0;
-		MovementSpeed = Velocity.Size(); // Returns magnitude of lateral velocity vector
+		CharacterSpeed = Velocity.Size(); // Returns magnitude of lateral velocity vector
 
 		// Determine bIsInAir
 		bIsInAir = ShooterCharacter->GetCharacterMovement()->IsFalling();
