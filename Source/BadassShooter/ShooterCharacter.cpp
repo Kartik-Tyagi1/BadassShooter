@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
@@ -76,6 +77,29 @@ void AShooterCharacter::MoveForward(float AxisValue)
 	}
 }
 
+// Called to bind functionality to input
+void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	check(PlayerInputComponent);
+
+	// Axis Mappings
+	PlayerInputComponent->BindAxis("MoveForward", this, &AShooterCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AShooterCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("TurnAtRate", this, &AShooterCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &AShooterCharacter::LookUpRate);
+	PlayerInputComponent->BindAxis("MouseTurn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("MouseLookUp", this, &APawn::AddControllerPitchInput);
+
+	// Action Mapping
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireWeapon);
+
+
+}
+
+
 void AShooterCharacter::MoveRight(float AxisValue)
 {
 	if ((Controller != nullptr) && (AxisValue != 0))
@@ -106,11 +130,13 @@ void AShooterCharacter::LookUpRate(float Rate)
 
 void AShooterCharacter::FireWeapon()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Fire Button Pressed"));
+	// UE_LOG(LogTemp, Warning, TEXT("Fire Button Pressed"));
+
 	if (RevolverSound)
 	{
 		UGameplayStatics::PlaySound2D(this, RevolverSound);
 	}
+
 	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("RevolverBarrelSocket"));
 	if (BarrelSocket)
 	{
@@ -119,7 +145,21 @@ void AShooterCharacter::FireWeapon()
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RevolverMuzzleFlash, BarrelSocketTransform);
 		}
+
+		FHitResult HitResult;
+		const FVector Start{ BarrelSocketTransform.GetLocation() };		// Start Location of Line Trace
+		const FQuat Rotation{ BarrelSocketTransform.GetRotation() };	// Rotation of the Barrel Socket
+		const FVector RotationAxis{ Rotation.GetAxisX() };				// X Direction of barrel socket (since thats what we lined it up to)
+		const FVector End{ Start + RotationAxis * 50'000.f };			// End of Line Trace
+
+		GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility);
+		if (HitResult.bBlockingHit)
+		{
+			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f);
+			DrawDebugPoint(GetWorld(), End, 5.f, FColor::Red, false, 2.f);
+		}
 	}
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HipFireMontage)
 	{
@@ -130,25 +170,4 @@ void AShooterCharacter::FireWeapon()
 }
 
 
-// Called to bind functionality to input
-void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	check(PlayerInputComponent);
-
-	// Axis Mappings
-	PlayerInputComponent->BindAxis("MoveForward", this, &AShooterCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AShooterCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("TurnAtRate", this, &AShooterCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &AShooterCharacter::LookUpRate);
-	PlayerInputComponent->BindAxis("MouseTurn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("MouseLookUp", this, &APawn::AddControllerPitchInput);
-
-	// Action Mapping
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireWeapon);
-
-
-}
 
