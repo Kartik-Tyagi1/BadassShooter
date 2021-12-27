@@ -21,6 +21,7 @@ AShooterCharacter::AShooterCharacter() :
 	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
 	CameraSpringArm->SetupAttachment(RootComponent);
 	CameraSpringArm->TargetArmLength = 300.f;
+	CameraSpringArm->SocketOffset = FVector{ 0.f, 65.f, 70.f };
 	CameraSpringArm->bUsePawnControlRotation = true; // Rotate arm based on controller
 
 	// Create Camera attached to spring arm
@@ -29,11 +30,11 @@ AShooterCharacter::AShooterCharacter() :
 	Camera->bUsePawnControlRotation = false; // Camera does NOT rotate relative to the spring arm
 
 	// Do not rotate character with camera
-	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
 
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character will move in camera direction and rotate ...
+	GetCharacterMovement()->bOrientRotationToMovement = false; // Character will move in camera direction and rotate ...
 	GetCharacterMovement()->RotationRate = FRotator{ 0.f, 400.f, 0.f }; // At this rate
 	GetCharacterMovement()->JumpZVelocity = 300.f;
 	GetCharacterMovement()->AirControl = 0.2f;
@@ -146,6 +147,46 @@ void AShooterCharacter::FireWeapon()
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RevolverMuzzleFlash, BarrelSocketTransform);
 		}
 
+		// Get Viewport Size
+		FVector2D Viewport;
+		if (GEngine && GEngine->GameViewport)
+		{
+			GEngine->GameViewport->GetViewportSize(Viewport);
+		}
+
+		// Get Crosshair Location in Screen Space
+		FVector2D CrosshairScreenLocation{ Viewport.X / 2, (Viewport.Y / 2) -50.f };
+
+		// Get Crosshair Location in World Space
+		FVector CrosshairWorldPosition;
+		FVector CrosshairWorldDirection;
+
+		bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
+			UGameplayStatics::GetPlayerController(this, 0), 
+			CrosshairScreenLocation, 
+			CrosshairWorldPosition, 
+			CrosshairWorldDirection);
+
+		// If projection is successful then do a line trace from the crosshair world location
+		if (bScreenToWorld)
+		{
+			FHitResult HitResult;
+			const FVector Start{ CrosshairWorldPosition };
+			const FVector End{ Start + CrosshairWorldDirection * 50'000 };
+
+			GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility);
+			if (HitResult.bBlockingHit)
+			{
+				if (BulletImpactParticles)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, HitResult.Location);
+				}
+			}
+
+		}
+
+
+		/*
 		FHitResult HitResult;
 		const FVector Start{ BarrelSocketTransform.GetLocation() };		// Start Location of Line Trace
 		const FQuat Rotation{ BarrelSocketTransform.GetRotation() };	// Rotation of the Barrel Socket
@@ -156,8 +197,14 @@ void AShooterCharacter::FireWeapon()
 		if (HitResult.bBlockingHit)
 		{
 			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f);
-			DrawDebugPoint(GetWorld(), End, 5.f, FColor::Red, false, 2.f);
+			DrawDebugPoint(GetWorld(), HitResult.Location, 5.f, FColor::Red, false, 2.f);
+			
+			if (BulletImpactParticles)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, HitResult.Location);
+			}
 		}
+		*/
 	}
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
