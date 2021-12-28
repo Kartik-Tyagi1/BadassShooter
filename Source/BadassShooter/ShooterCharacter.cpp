@@ -12,7 +12,12 @@
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
-	LookAroundRate(45.f)
+	LookAroundRate(45.f),
+	bIsAiming(false),
+	CameraDefaultFOV(0.f),  // Set in BeginPlay
+	CameraZoomedFOV(35.f),
+	CameraCurrentFOV(0.f),
+	CameraZoomInterpSpeed(40.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -20,8 +25,8 @@ AShooterCharacter::AShooterCharacter() :
 	// Create a spring arm for the camera (pulls in toward the character when collisions occur with the character)
 	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
 	CameraSpringArm->SetupAttachment(RootComponent);
-	CameraSpringArm->TargetArmLength = 300.f;
-	CameraSpringArm->SocketOffset = FVector{ 0.f, 65.f, 70.f };
+	CameraSpringArm->TargetArmLength = 350.f;
+	CameraSpringArm->SocketOffset = FVector{ 0.f, 70.f, 80.f };
 	CameraSpringArm->bUsePawnControlRotation = true; // Rotate arm based on controller
 
 	// Create Camera attached to spring arm
@@ -32,10 +37,10 @@ AShooterCharacter::AShooterCharacter() :
 	// Do not rotate character with camera
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = true;
+	bUseControllerRotationYaw = false;
 
-	GetCharacterMovement()->bOrientRotationToMovement = false; // Character will move in camera direction and rotate ...
-	GetCharacterMovement()->RotationRate = FRotator{ 0.f, 400.f, 0.f }; // At this rate
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character will move in camera direction and rotate ...
+	GetCharacterMovement()->RotationRate = FRotator{ 0.f, 600.f, 0.f }; // At this rate
 	GetCharacterMovement()->JumpZVelocity = 300.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
@@ -51,6 +56,12 @@ void AShooterCharacter::BeginPlay()
 	{
 		PlayerController->PlayerCameraManager->ViewPitchMax = 10.f;  // Bottom of Character
 	}
+
+	if (Camera)
+	{
+		CameraDefaultFOV = GetCamera()->FieldOfView;
+		CameraCurrentFOV = CameraDefaultFOV;
+	}
 	
 }
 
@@ -59,6 +70,7 @@ void AShooterCharacter::BeginPlay()
 void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	SetCameraFOV(DeltaTime);
 
 }
 
@@ -96,7 +108,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireWeapon);
-
+	PlayerInputComponent->BindAction("AimingButton", IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
+	PlayerInputComponent->BindAction("AimingButton", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
 
 }
 
@@ -132,37 +145,39 @@ void AShooterCharacter::LookUpRate(float Rate)
 void AShooterCharacter::FireWeapon()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Fire Button Pressed"));
-
-	if (RevolverSound)
+	if (bIsAiming)
 	{
-		UGameplayStatics::PlaySound2D(this, RevolverSound);
-	}
-
-	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("RevolverBarrelSocket"));
-	if (BarrelSocket)
-	{
-		FTransform BarrelSocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
-		if (RevolverMuzzleFlash)
+		if (RevolverSound)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RevolverMuzzleFlash, BarrelSocketTransform);
+			UGameplayStatics::PlaySound2D(this, RevolverSound);
 		}
 
-		FVector BeamEnd;
-		bool bBeamEndLocation = GetBeamEndLocation(BarrelSocketTransform.GetLocation(), BeamEnd);
-		if (bBeamEndLocation)
+		const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("RevolverBarrelSocket"));
+		if (BarrelSocket)
 		{
-			if (BulletImpactParticles)
+			FTransform BarrelSocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+			if (RevolverMuzzleFlash)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, BeamEnd);
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RevolverMuzzleFlash, BarrelSocketTransform);
+			}
+
+			FVector BeamEnd;
+			bool bBeamEndLocation = GetBeamEndLocation(BarrelSocketTransform.GetLocation(), BeamEnd);
+			if (bBeamEndLocation)
+			{
+				if (BulletImpactParticles)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, BeamEnd);
+				}
 			}
 		}
-	}
 
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && HipFireMontage)
-	{
-		AnimInstance->Montage_Play(HipFireMontage);
-		AnimInstance->Montage_JumpToSection(TEXT("StartFire"));
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance && HipFireMontage)
+		{
+			AnimInstance->Montage_Play(HipFireMontage);
+			AnimInstance->Montage_JumpToSection(TEXT("StartFire"));
+		}
 	}
 
 }
@@ -177,7 +192,7 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 	}
 
 	// Get Crosshair Location in Screen Space
-	FVector2D CrosshairScreenLocation{ Viewport.X / 2, (Viewport.Y / 2) - 50.f };
+	FVector2D CrosshairScreenLocation{ Viewport.X / 2, (Viewport.Y / 2) };
 
 	// Get Crosshair Location in World Space
 	FVector CrosshairWorldPosition;
@@ -218,6 +233,32 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 	}
 
 	return false;
+}
+
+void AShooterCharacter::AimingButtonPressed()
+{
+	bIsAiming = true;
+	GetCamera()->SetFieldOfView(CameraZoomedFOV);
+}
+
+void AShooterCharacter::AimingButtonReleased()
+{
+	bIsAiming = false;
+	GetCamera()->SetFieldOfView(CameraDefaultFOV);
+}
+
+void AShooterCharacter::SetCameraFOV(float DeltaTime)
+{
+	if (bIsAiming)
+	{
+		CameraCurrentFOV = FMath::FInterpTo(CameraCurrentFOV, CameraZoomedFOV, DeltaTime, CameraZoomInterpSpeed);
+	}
+	else
+	{
+		CameraCurrentFOV = FMath::FInterpTo(CameraCurrentFOV, CameraDefaultFOV, DeltaTime, CameraZoomInterpSpeed);
+	}
+
+	GetCamera()->SetFieldOfView(CameraCurrentFOV);
 }
 
 

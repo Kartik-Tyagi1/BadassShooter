@@ -33,6 +33,13 @@ protected:
 	void FireWeapon();
 	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
 
+	/* Functions for aiming the weapon */
+	void AimingButtonPressed();
+	void AimingButtonReleased();
+
+	/* Set Camera FOV */
+	void SetCameraFOV(float DeltaTime);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -67,8 +74,28 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* BulletImpactParticles;
 
+	/* Boolean to be set when aiming button is pressed or released */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	bool bIsAiming;
+
+	/* Default Camera Field of View */
+	float CameraDefaultFOV;
+
+	/* Default Camera Field of View */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	float CameraZoomedFOV;
+
+	/* Current Camera Field of View */
+	float CameraCurrentFOV;
+
+	/* Speed to Interp between Camera FOVs */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	float CameraZoomInterpSpeed;
+
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
 	FORCEINLINE UCameraComponent* GetCamera() const { return Camera; }
+	FORCEINLINE bool GetIsAiming() const { return bIsAiming; }
 
 };
