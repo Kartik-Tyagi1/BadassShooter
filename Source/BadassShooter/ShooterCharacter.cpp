@@ -238,13 +238,23 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 void AShooterCharacter::AimingButtonPressed()
 {
 	bIsAiming = true;
-	GetCamera()->SetFieldOfView(CameraZoomedFOV);
+
+	// Do not rotate character with camera when aiming
+	bUseControllerRotationRoll = true;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 }
 
 void AShooterCharacter::AimingButtonReleased()
 {
 	bIsAiming = false;
-	GetCamera()->SetFieldOfView(CameraDefaultFOV);
+
+	// Go back to defaults when back to normal
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true; 
 }
 
 void AShooterCharacter::SetCameraFOV(float DeltaTime)
@@ -258,7 +268,8 @@ void AShooterCharacter::SetCameraFOV(float DeltaTime)
 		CameraCurrentFOV = FMath::FInterpTo(CameraCurrentFOV, CameraDefaultFOV, DeltaTime, CameraZoomInterpSpeed);
 	}
 
-	GetCamera()->SetFieldOfView(CameraCurrentFOV);
+	GetCamera()->SetFieldOfView(CameraCurrentFOV);		
+
 }
 
 
