@@ -144,42 +144,41 @@ void AShooterCharacter::LookUpRate(float Rate)
 
 void AShooterCharacter::FireWeapon()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("Fire Button Pressed"));
-	if (bIsAiming)
+	// Sound and Muzzle Flash are played in Weapon Fire Montage now so hip fire does not look weird
+	// Might change this based on the type of weapon since revolver/pistol hip fire animation transistions are strange 
+		
+	/*if (RevolverSound)
 	{
-		if (RevolverSound)
-		{
-			UGameplayStatics::PlaySound2D(this, RevolverSound);
-		}
+		UGameplayStatics::PlaySound2D(this, RevolverSound);
+	}*/
 
-		const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("RevolverBarrelSocket"));
-		if (BarrelSocket)
+	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("RevolverBarrelSocket"));
+	if (BarrelSocket)
+	{
+		FTransform BarrelSocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+		/*if (RevolverMuzzleFlash)
 		{
-			FTransform BarrelSocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
-			if (RevolverMuzzleFlash)
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RevolverMuzzleFlash, BarrelSocketTransform);
+		}*/
+
+		FVector BeamEnd;
+		bool bBeamEndLocation = GetBeamEndLocation(BarrelSocketTransform.GetLocation(), BeamEnd);
+		if (bBeamEndLocation)
+		{
+			if (BulletImpactParticles)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RevolverMuzzleFlash, BarrelSocketTransform);
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, BeamEnd);
 			}
-
-			FVector BeamEnd;
-			bool bBeamEndLocation = GetBeamEndLocation(BarrelSocketTransform.GetLocation(), BeamEnd);
-			if (bBeamEndLocation)
-			{
-				if (BulletImpactParticles)
-				{
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, BeamEnd);
-				}
-			}
-		}
-
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-		if (AnimInstance && HipFireMontage)
-		{
-			AnimInstance->Montage_Play(HipFireMontage);
-			AnimInstance->Montage_JumpToSection(TEXT("StartFire"));
 		}
 	}
 
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HipFireMontage)
+	{
+		AnimInstance->Montage_Play(HipFireMontage);
+		AnimInstance->Montage_JumpToSection(TEXT("StartFire"));
+	}
+	
 }
 
 bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)
