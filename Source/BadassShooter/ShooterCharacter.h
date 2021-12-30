@@ -40,6 +40,16 @@ protected:
 	/* Set Camera FOV */
 	void SetCameraFOV(float DeltaTime);
 
+	/* Set Look Rates based on if character is aiming */
+	void SetLookRates();
+
+	/*
+	* Functions to control turning and looking up rates when using the mouse
+	* @param Value: The input from the mouse
+	*/
+	void Turn(float Value);
+	void LookUp(float Value);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -58,13 +68,33 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	float LookAroundRate;
 
+	/* Value that determines the speed at which player can look around with arrow keys and controller right stick when not aiming */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	float HipLookAroundRate;
+
+	/* Value that determines the speed at which player can look around with arrow keys and controller right stick when aiming */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	float AimingLookAroundRate;
+
+	/* Value that determines the speed at which player can look around with the mouse when not aiming */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"), meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float MouseHipLookAroundRate;
+
+	/* Value that determines the speed at which player can look around with the mouse when aiming */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"), meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float MouseAimingLookAroundRate;
+
 	/* Sound Cue for the Defualt Revolver*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-	class USoundCue* RevolverSound;
+	class USoundCue* FireSound;
 
-	/* Muzzle Flash at the Barrel of the Revolver */
+	/* Muzzle Flash at the Barrel of right weapon or main rifle */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-	class UParticleSystem* RevolverMuzzleFlash;
+	class UParticleSystem* MuzzleFlash_Right;
+
+	/* Muzzle Flash at the Barrel of left weapon */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* MuzzleFlash_Left;
 
 	/* Montage for firing weapon from the hip */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))

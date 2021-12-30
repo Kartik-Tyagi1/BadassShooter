@@ -12,8 +12,17 @@
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
+	// Base Look Around Rate
 	LookAroundRate(45.f),
+	// Look Around Rates Keyboard/Controller
+	HipLookAroundRate(90.f),
+	AimingLookAroundRate(20.f),
+	// Look Around Rates Mouse
+	MouseHipLookAroundRate(1.f),
+	MouseAimingLookAroundRate(0.2f),
+	// True when Aiming
 	bIsAiming(false),
+	// Camera FOV
 	CameraDefaultFOV(0.f),  // Set in BeginPlay
 	CameraZoomedFOV(35.f),
 	CameraCurrentFOV(0.f),
@@ -66,11 +75,14 @@ void AShooterCharacter::BeginPlay()
 }
 
 
+
+
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	SetCameraFOV(DeltaTime);
+	SetLookRates();
 
 }
 
@@ -101,8 +113,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("MoveRight", this, &AShooterCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("TurnAtRate", this, &AShooterCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AShooterCharacter::LookUpRate);
-	PlayerInputComponent->BindAxis("MouseTurn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("MouseLookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("MouseTurn", this, &AShooterCharacter::Turn);
+	PlayerInputComponent->BindAxis("MouseLookUp", this, &AShooterCharacter::LookUp);
 
 	// Action Mapping
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
@@ -142,32 +154,66 @@ void AShooterCharacter::LookUpRate(float Rate)
 	AddControllerPitchInput(Rate * LookAroundRate * GetWorld()->GetDeltaSeconds());
 }
 
+void AShooterCharacter::Turn(float Value)
+{
+	float TurnRate{};
+	if (bIsAiming)
+	{
+		TurnRate = MouseAimingLookAroundRate;
+	}
+	else
+	{
+		TurnRate = MouseHipLookAroundRate;
+	}
+	AddControllerYawInput(Value * TurnRate);
+}
+
+void AShooterCharacter::LookUp(float Value)
+{
+	float LookUpRate{};
+	if (bIsAiming)
+	{
+		LookUpRate = MouseAimingLookAroundRate;
+	}
+	else
+	{
+		LookUpRate = MouseHipLookAroundRate;
+	}
+	AddControllerPitchInput(Value * LookUpRate);
+}
+
 void AShooterCharacter::FireWeapon()
 {
-	// Sound and Muzzle Flash are played in Weapon Fire Montage now so hip fire does not look weird
-	// Might change this based on the type of weapon since revolver/pistol hip fire animation transistions are strange 
 		
-	/*if (RevolverSound)
+	if (FireSound)
 	{
-		UGameplayStatics::PlaySound2D(this, RevolverSound);
-	}*/
+		UGameplayStatics::PlaySound2D(this, FireSound);
+	}
 
-	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("RevolverBarrelSocket"));
-	if (BarrelSocket)
+	const USkeletalMeshSocket* BarrelSocket_1 = GetMesh()->GetSocketByName(TEXT("Muzzle_01"));
+	const USkeletalMeshSocket* BarrelSocket_2 = GetMesh()->GetSocketByName(TEXT("Muzzle_02"));
+
+	if (BarrelSocket_1)
 	{
-		FTransform BarrelSocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
-		/*if (RevolverMuzzleFlash)
+		FTransform BarrelSocketTransform_1 = BarrelSocket_1->GetSocketTransform(GetMesh());
+		FTransform BarrelSocketTransform_2 = BarrelSocket_2->GetSocketTransform(GetMesh());
+		if (MuzzleFlash_Right && MuzzleFlash_Left)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RevolverMuzzleFlash, BarrelSocketTransform);
-		}*/
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash_Right, BarrelSocketTransform_1);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash_Left, BarrelSocketTransform_2);
+		}
 
-		FVector BeamEnd;
-		bool bBeamEndLocation = GetBeamEndLocation(BarrelSocketTransform.GetLocation(), BeamEnd);
-		if (bBeamEndLocation)
+		FVector BeamEnd_1;
+		FVector BeamEnd_2;
+		bool bBeamEndLocation_1 = GetBeamEndLocation(BarrelSocketTransform_1.GetLocation(), BeamEnd_1);
+		bool bBeamEndLocation_2 = GetBeamEndLocation(BarrelSocketTransform_2.GetLocation(), BeamEnd_2);
+
+		if (bBeamEndLocation_1 && bBeamEndLocation_2)
 		{
 			if (BulletImpactParticles)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, BeamEnd);
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, BeamEnd_1);
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, BeamEnd_2);
 			}
 		}
 	}
@@ -269,6 +315,18 @@ void AShooterCharacter::SetCameraFOV(float DeltaTime)
 
 	GetCamera()->SetFieldOfView(CameraCurrentFOV);		
 
+}
+
+void AShooterCharacter::SetLookRates()
+{
+	if (bIsAiming)
+	{
+		LookAroundRate = AimingLookAroundRate;
+	}
+	else
+	{
+		LookAroundRate = HipLookAroundRate;
+	}
 }
 
 
