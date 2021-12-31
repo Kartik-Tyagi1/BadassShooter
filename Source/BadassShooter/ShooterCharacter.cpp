@@ -83,6 +83,7 @@ void AShooterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	SetCameraFOV(DeltaTime);
 	SetLookRates();
+	CrosshairSpread(DeltaTime);
 
 }
 
@@ -123,6 +124,11 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("AimingButton", IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
 	PlayerInputComponent->BindAction("AimingButton", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
 
+}
+
+float AShooterCharacter::GetCrosshairSpreadMultiplier() const
+{
+	return CrosshairSpreadMultiplier;
 }
 
 
@@ -182,6 +188,19 @@ void AShooterCharacter::LookUp(float Value)
 	AddControllerPitchInput(Value * LookUpRate);
 }
 
+void AShooterCharacter::CrosshairSpread(float DeltaTime)
+{
+	// Calculate the Crosshair Velocity Factor by mapping walkspeed to normalized range
+	FVector2D WalkSpeedRange{ 0.f, 600.f };
+	FVector2D VelocityFactorRange{ 0.f, 1.f };
+	FVector Velocity{ GetVelocity() };
+	Velocity.Z = 0.f;
+	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityFactorRange, Velocity.Size());
+
+
+	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor;
+}
+
 void AShooterCharacter::FireWeapon()
 {
 		
@@ -224,7 +243,7 @@ void AShooterCharacter::FireWeapon()
 		AnimInstance->Montage_Play(HipFireMontage);
 		AnimInstance->Montage_JumpToSection(TEXT("StartFire"));
 	}
-	
+
 }
 
 bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)

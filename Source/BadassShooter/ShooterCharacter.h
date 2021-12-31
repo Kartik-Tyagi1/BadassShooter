@@ -50,6 +50,9 @@ protected:
 	void Turn(float Value);
 	void LookUp(float Value);
 
+	/* Function to calculate the crosshair spread */
+	void CrosshairSpread(float DeltaTime);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -58,11 +61,19 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
+
+	/*------------------------------- CHARACTER COMPONENETS --------------------------------------------------------*/
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraSpringArm;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
+
+
+	/*--------------------------------- LOOK AROUND RATES --------------------------------------------------------*/
+
 
 	/* Value that determines the speed at which player can look around with arrow keys and controller right stick */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -83,6 +94,10 @@ private:
 	/* Value that determines the speed at which player can look around with the mouse when aiming */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"), meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 	float MouseAimingLookAroundRate;
+
+
+	/*--------------------------------- WEAPON FIRE ------------------------------------------------------------*/
+
 
 	/* Sound Cue for the Defualt Revolver*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -108,6 +123,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	bool bIsAiming;
 
+
+	/*--------------------------------- CAMERA FIELD OF VIEW --------------------------------------------------------*/
+
+
 	/* Default Camera Field of View */
 	float CameraDefaultFOV;
 
@@ -121,11 +140,37 @@ private:
 	/* Speed to Interp between Camera FOVs */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	float CameraZoomInterpSpeed;
+	
+
+	/*--------------------------------- CROSSHAIR MOVEMENT --------------------------------------------------------*/
+
+	/* Amount we spread the crosshairs by determined by the other factors */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshair, meta = (AllowPrivateAccess = "true"))
+	float CrosshairSpreadMultiplier;
+
+	/* Amount we spread crosshairs by depending on movement speed */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshair, meta = (AllowPrivateAccess = "true"))
+	float CrosshairVelocityFactor;
+
+	/* Amount we spread crosshairs by depending on if character is in the air */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshair, meta = (AllowPrivateAccess = "true"))
+	float CrosshairInAirFactor;
+
+	/* Amount we spread crosshairs by depending on if character is aiming */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshair, meta = (AllowPrivateAccess = "true"))
+	float CrosshairAimingFactor;
+
+	/* Amount we spread crosshairs by depending on if character is firing a weapon */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshair, meta = (AllowPrivateAccess = "true"))
+	float CrosshairFiringFactor;
 
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
 	FORCEINLINE UCameraComponent* GetCamera() const { return Camera; }
 	FORCEINLINE bool GetIsAiming() const { return bIsAiming; }
+
+	UFUNCTION(BlueprintCallable)
+	float GetCrosshairSpreadMultiplier() const;
 
 };
