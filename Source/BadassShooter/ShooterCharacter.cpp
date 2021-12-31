@@ -26,7 +26,13 @@ AShooterCharacter::AShooterCharacter() :
 	CameraDefaultFOV(0.f),  // Set in BeginPlay
 	CameraZoomedFOV(35.f),
 	CameraCurrentFOV(0.f),
-	CameraZoomInterpSpeed(40.f)
+	CameraZoomInterpSpeed(40.f),
+	// Crosshair Spread Factors
+	CrosshairSpreadMultiplier(0.f),
+	CrosshairVelocityFactor(0.f),
+	CrosshairInAirFactor(0.f),
+	CrosshairAimingFactor(0.f),
+	CrosshairFiringFactor(0.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -197,8 +203,27 @@ void AShooterCharacter::CrosshairSpread(float DeltaTime)
 	Velocity.Z = 0.f;
 	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityFactorRange, Velocity.Size());
 
+	// Calculate CrosshairInAir Factor by interpolation when in the air
+	if (GetCharacterMovement()->IsFalling())
+	{
+		CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 2.25f, DeltaTime, 2.25f);
+	}
+	else
+	{
+		CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 0.f, DeltaTime, 30.f);
+	}
 
-	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor;
+	// Calculate CrosshairAimFactor by Interpolation when aiming
+	if (bIsAiming)
+	{
+		CrosshairAimingFactor = FMath::FInterpTo(CrosshairAimingFactor, 0.6f, DeltaTime, 30.f);
+	}
+	else
+	{
+		CrosshairAimingFactor = FMath::FInterpTo(CrosshairAimingFactor, 0.f, DeltaTime, 30.f);
+	}
+
+	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor + CrosshairInAirFactor - CrosshairAimingFactor;
 }
 
 void AShooterCharacter::FireWeapon()
