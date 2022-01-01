@@ -105,11 +105,7 @@ private:
 
 	/* Muzzle Flash at the Barrel of right weapon or main rifle */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-	class UParticleSystem* MuzzleFlash_Right;
-
-	/* Muzzle Flash at the Barrel of left weapon */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-	class UParticleSystem* MuzzleFlash_Left;
+	class UParticleSystem* MuzzleFlash;
 
 	/* Montage for firing weapon from the hip */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))

@@ -235,29 +235,24 @@ void AShooterCharacter::FireWeapon()
 	}
 
 	const USkeletalMeshSocket* BarrelSocket_1 = GetMesh()->GetSocketByName(TEXT("Muzzle_01"));
-	const USkeletalMeshSocket* BarrelSocket_2 = GetMesh()->GetSocketByName(TEXT("Muzzle_02"));
 
 	if (BarrelSocket_1)
 	{
 		FTransform BarrelSocketTransform_1 = BarrelSocket_1->GetSocketTransform(GetMesh());
-		FTransform BarrelSocketTransform_2 = BarrelSocket_2->GetSocketTransform(GetMesh());
-		if (MuzzleFlash_Right && MuzzleFlash_Left)
+		if (MuzzleFlash)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash_Right, BarrelSocketTransform_1);
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash_Left, BarrelSocketTransform_2);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, BarrelSocketTransform_1);
 		}
 
 		FVector BeamEnd_1;
 		FVector BeamEnd_2;
 		bool bBeamEndLocation_1 = GetBeamEndLocation(BarrelSocketTransform_1.GetLocation(), BeamEnd_1);
-		bool bBeamEndLocation_2 = GetBeamEndLocation(BarrelSocketTransform_2.GetLocation(), BeamEnd_2);
 
-		if (bBeamEndLocation_1 && bBeamEndLocation_2)
+		if (bBeamEndLocation_1)
 		{
 			if (BulletImpactParticles)
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, BeamEnd_1);
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, BeamEnd_2);
 			}
 		}
 	}
