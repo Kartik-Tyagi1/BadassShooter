@@ -53,6 +53,12 @@ protected:
 	/* Function to calculate the crosshair spread */
 	void CrosshairSpread(float DeltaTime);
 
+	/* Functions for the CrosshairShootTimer Handle*/
+	void StartCrosshairShootTimer();
+
+	UFUNCTION()
+	void EndCrosshairShootTimer();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -159,6 +165,11 @@ private:
 	/* Amount we spread crosshairs by depending on if character is firing a weapon */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshair, meta = (AllowPrivateAccess = "true"))
 	float CrosshairFiringFactor;
+
+	/* Variables to calculate the CrosshairFiringFactor*/
+	float ShootTimeDuration;
+	bool bFiringBullet;
+	FTimerHandle CrosshairShootTimer;
 
 
 public:

@@ -32,7 +32,10 @@ AShooterCharacter::AShooterCharacter() :
 	CrosshairVelocityFactor(0.f),
 	CrosshairInAirFactor(0.f),
 	CrosshairAimingFactor(0.f),
-	CrosshairFiringFactor(0.f)
+	CrosshairFiringFactor(0.f),
+	// CrosshairFiringFactor Factors
+	ShootTimeDuration(0.05f),
+	bFiringBullet(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -223,7 +226,28 @@ void AShooterCharacter::CrosshairSpread(float DeltaTime)
 		CrosshairAimingFactor = FMath::FInterpTo(CrosshairAimingFactor, 0.f, DeltaTime, 30.f);
 	}
 
-	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor + CrosshairInAirFactor - CrosshairAimingFactor;
+	// Calculate CrosshairFiringFactor by interpolation based on if firing
+	if (bFiringBullet)
+	{
+		CrosshairFiringFactor = FMath::FInterpTo(CrosshairFiringFactor, 0.3f, DeltaTime, 60.f);
+	}
+	else
+	{
+		CrosshairFiringFactor = FMath::FInterpTo(CrosshairFiringFactor, 0.f, DeltaTime, 60.f);
+	}
+
+	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor + CrosshairInAirFactor - CrosshairAimingFactor + CrosshairFiringFactor;
+}
+
+void AShooterCharacter::StartCrosshairShootTimer()
+{
+	bFiringBullet = true;
+	GetWorldTimerManager().SetTimer(CrosshairShootTimer, this, &AShooterCharacter::EndCrosshairShootTimer, ShootTimeDuration);
+}
+
+void AShooterCharacter::EndCrosshairShootTimer()
+{
+	bFiringBullet = false;
 }
 
 void AShooterCharacter::FireWeapon()
@@ -263,6 +287,8 @@ void AShooterCharacter::FireWeapon()
 		AnimInstance->Montage_Play(HipFireMontage);
 		AnimInstance->Montage_JumpToSection(TEXT("StartFire"));
 	}
+
+	StartCrosshairShootTimer();
 
 }
 
