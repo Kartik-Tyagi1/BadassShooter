@@ -35,7 +35,11 @@ AShooterCharacter::AShooterCharacter() :
 	CrosshairFiringFactor(0.f),
 	// CrosshairFiringFactor Factors
 	ShootTimeDuration(0.05f),
-	bFiringBullet(false)
+	bFiringBullet(false),
+	// Automatic Fire Variables
+	bFireButtonPressed(false),
+	bShouldFire(true),
+	AutomaticFireDuration(0.1f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -129,7 +133,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	// Action Mapping
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireWeapon);
+	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireButtonPressed);
+	PlayerInputComponent->BindAction("FireButton", IE_Released, this, &AShooterCharacter::FireButtonReleased);
 	PlayerInputComponent->BindAction("AimingButton", IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
 	PlayerInputComponent->BindAction("AimingButton", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
 
@@ -248,6 +253,36 @@ void AShooterCharacter::StartCrosshairShootTimer()
 void AShooterCharacter::EndCrosshairShootTimer()
 {
 	bFiringBullet = false;
+}
+
+void AShooterCharacter::FireButtonPressed()
+{
+	bFireButtonPressed = true;
+	StartAutoFireTimer();
+}
+
+void AShooterCharacter::FireButtonReleased()
+{
+	bFireButtonPressed = false;
+}
+
+void AShooterCharacter::StartAutoFireTimer()
+{
+	if (bShouldFire)
+	{
+		FireWeapon();
+		bShouldFire = false;
+		GetWorldTimerManager().SetTimer(FireTimer, this, &AShooterCharacter::AutoFireTimerReset, AutomaticFireDuration);
+	}
+}
+
+void AShooterCharacter::AutoFireTimerReset()
+{
+	bShouldFire = true;
+	if (bFireButtonPressed)
+	{
+		StartAutoFireTimer();
+	}
 }
 
 void AShooterCharacter::FireWeapon()

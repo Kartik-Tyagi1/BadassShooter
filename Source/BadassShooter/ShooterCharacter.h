@@ -55,9 +55,15 @@ protected:
 
 	/* Functions for the CrosshairShootTimer Handle*/
 	void StartCrosshairShootTimer();
-
 	UFUNCTION()
-	void EndCrosshairShootTimer();
+	void EndCrosshairShootTimer(); // Callback for StartCrosshairShootTimer()
+
+	/* Functions for Automatic Fire */
+	void FireButtonPressed();
+	void FireButtonReleased();
+	void StartAutoFireTimer();
+	UFUNCTION()
+	void AutoFireTimerReset(); // Callback for StartAutoFireTimer()
 
 public:	
 	// Called every frame
@@ -170,6 +176,20 @@ private:
 	float ShootTimeDuration;
 	bool bFiringBullet;
 	FTimerHandle CrosshairShootTimer;
+
+	/*--------------------------------- AUTOMATIC FIRE --------------------------------------------------------*/
+
+	/* Boolean for if the player is pressing the fire button */
+	bool bFireButtonPressed;
+
+	/* Boolean to determine if the firing of the weapon shoudl continue */
+	bool bShouldFire;
+
+	/* Duration between each bullet fire */
+	float AutomaticFireDuration;
+
+	FTimerHandle FireTimer;
+
 
 
 public:
