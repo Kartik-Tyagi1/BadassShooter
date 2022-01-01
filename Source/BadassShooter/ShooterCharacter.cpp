@@ -88,8 +88,6 @@ void AShooterCharacter::BeginPlay()
 }
 
 
-
-
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 {
@@ -100,23 +98,6 @@ void AShooterCharacter::Tick(float DeltaTime)
 
 }
 
-void AShooterCharacter::MoveForward(float AxisValue)
-{
-	if ((Controller != nullptr) && (AxisValue != 0))
-	{
-		// Get Rotation of Controller and get is Yaw
-		FRotator ControllerRotation{ Controller->GetControlRotation() };
-		FRotator CharacterYaw{ 0.f, ControllerRotation.Yaw, 0.f };
-
-		// Create a vector pointing in the direction of the Yaw of the rotation (in this case X is forward)
-		const FVector Direction{ FRotationMatrix{CharacterYaw}.GetUnitAxis(EAxis::X)};
-
-		// Set Forward movement in the calculated direction
-		AddMovementInput(Direction, AxisValue);
-	}
-}
-
-// Called to bind functionality to input
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -139,6 +120,25 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("AimingButton", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
 
 }
+
+void AShooterCharacter::MoveForward(float AxisValue)
+{
+	if ((Controller != nullptr) && (AxisValue != 0))
+	{
+		// Get Rotation of Controller and get is Yaw
+		FRotator ControllerRotation{ Controller->GetControlRotation() };
+		FRotator CharacterYaw{ 0.f, ControllerRotation.Yaw, 0.f };
+
+		// Create a vector pointing in the direction of the Yaw of the rotation (in this case X is forward)
+		const FVector Direction{ FRotationMatrix{CharacterYaw}.GetUnitAxis(EAxis::X)};
+
+		// Set Forward movement in the calculated direction
+		AddMovementInput(Direction, AxisValue);
+	}
+}
+
+// Called to bind functionality to input
+
 
 float AShooterCharacter::GetCrosshairSpreadMultiplier() const
 {
