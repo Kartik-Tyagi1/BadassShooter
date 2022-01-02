@@ -24,7 +24,7 @@ AShooterCharacter::AShooterCharacter() :
 	bIsAiming(false),
 	// Camera FOV
 	CameraDefaultFOV(0.f),  // Set in BeginPlay
-	CameraZoomedFOV(35.f),
+	CameraZoomedFOV(30.f),
 	CameraCurrentFOV(0.f),
 	CameraZoomInterpSpeed(40.f),
 	// Crosshair Spread Factors
