@@ -57,9 +57,6 @@ AShooterCharacter::AShooterCharacter() :
 	Camera->SetupAttachment(CameraSpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false; // Camera does NOT rotate relative to the spring arm
 
-	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
-	PickupWidget->SetupAttachment(RootComponent);
-
 	// Do not rotate character with camera
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
@@ -88,7 +85,7 @@ void AShooterCharacter::BeginPlay()
 		CameraDefaultFOV = GetCamera()->FieldOfView;
 		CameraCurrentFOV = CameraDefaultFOV;
 	}
-	
+
 }
 
 
@@ -393,6 +390,7 @@ void AShooterCharacter::AimingButtonPressed()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
+
 }
 
 void AShooterCharacter::AimingButtonReleased()
@@ -404,6 +402,7 @@ void AShooterCharacter::AimingButtonReleased()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true; 
+
 }
 
 void AShooterCharacter::SetCameraFOV(float DeltaTime)
