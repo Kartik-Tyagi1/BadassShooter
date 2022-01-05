@@ -10,6 +10,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "DrawDebugHelpers.h"
 #include "Components/WidgetComponent.h"
+#include "Weapon.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
@@ -86,6 +87,9 @@ void AShooterCharacter::BeginPlay()
 		CameraCurrentFOV = CameraDefaultFOV;
 	}
 
+	// Spawn and attach the default weapon to the character mesh
+	SpawnDefaultWeapon();
+
 }
 
 
@@ -99,6 +103,7 @@ void AShooterCharacter::Tick(float DeltaTime)
 
 }
 
+// Called to bind functionality to input
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -122,6 +127,33 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 }
 
+void AShooterCharacter::SetCameraFOV(float DeltaTime)
+{
+	if (bIsAiming)
+	{
+		CameraCurrentFOV = FMath::FInterpTo(CameraCurrentFOV, CameraZoomedFOV, DeltaTime, CameraZoomInterpSpeed);
+	}
+	else
+	{
+		CameraCurrentFOV = FMath::FInterpTo(CameraCurrentFOV, CameraDefaultFOV, DeltaTime, CameraZoomInterpSpeed);
+	}
+
+	GetCamera()->SetFieldOfView(CameraCurrentFOV);
+
+}
+
+void AShooterCharacter::SetLookRates()
+{
+	if (bIsAiming)
+	{
+		LookAroundRate = AimingLookAroundRate;
+	}
+	else
+	{
+		LookAroundRate = HipLookAroundRate;
+	}
+}
+
 void AShooterCharacter::MoveForward(float AxisValue)
 {
 	if ((Controller != nullptr) && (AxisValue != 0))
@@ -136,14 +168,6 @@ void AShooterCharacter::MoveForward(float AxisValue)
 		// Set Forward movement in the calculated direction
 		AddMovementInput(Direction, AxisValue);
 	}
-}
-
-// Called to bind functionality to input
-
-
-float AShooterCharacter::GetCrosshairSpreadMultiplier() const
-{
-	return CrosshairSpreadMultiplier;
 }
 
 
@@ -203,6 +227,13 @@ void AShooterCharacter::LookUp(float Value)
 	AddControllerPitchInput(Value * LookUpRate);
 }
 
+
+float AShooterCharacter::GetCrosshairSpreadMultiplier() const
+{
+	return CrosshairSpreadMultiplier;
+}
+
+
 void AShooterCharacter::CrosshairSpread(float DeltaTime)
 {
 	// Calculate the Crosshair Velocity Factor by mapping walkspeed to normalized range
@@ -256,6 +287,32 @@ void AShooterCharacter::EndCrosshairShootTimer()
 	bFiringBullet = false;
 }
 
+
+void AShooterCharacter::AimingButtonPressed()
+{
+	bIsAiming = true;
+
+	// Do not rotate character with camera when aiming
+	bUseControllerRotationRoll = true;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+
+}
+
+void AShooterCharacter::AimingButtonReleased()
+{
+	bIsAiming = false;
+
+	// Go back to defaults when back to normal
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+}
+
+
 void AShooterCharacter::FireButtonPressed()
 {
 	bFireButtonPressed = true;
@@ -285,6 +342,7 @@ void AShooterCharacter::AutoFireTimerReset()
 		StartAutoFireTimer();
 	}
 }
+
 
 void AShooterCharacter::FireWeapon()
 {
@@ -381,56 +439,29 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 	return false;
 }
 
-void AShooterCharacter::AimingButtonPressed()
+
+
+
+void AShooterCharacter::SpawnDefaultWeapon()
 {
-	bIsAiming = true;
-
-	// Do not rotate character with camera when aiming
-	bUseControllerRotationRoll = true;
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = true;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-
-}
-
-void AShooterCharacter::AimingButtonReleased()
-{
-	bIsAiming = false;
-
-	// Go back to defaults when back to normal
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true; 
-
-}
-
-void AShooterCharacter::SetCameraFOV(float DeltaTime)
-{
-	if (bIsAiming)
+	if (DefaultWeaponClass)
 	{
-		CameraCurrentFOV = FMath::FInterpTo(CameraCurrentFOV, CameraZoomedFOV, DeltaTime, CameraZoomInterpSpeed);
-	}
-	else
-	{
-		CameraCurrentFOV = FMath::FInterpTo(CameraCurrentFOV, CameraDefaultFOV, DeltaTime, CameraZoomInterpSpeed);
-	}
-
-	GetCamera()->SetFieldOfView(CameraCurrentFOV);		
-
-}
-
-void AShooterCharacter::SetLookRates()
-{
-	if (bIsAiming)
-	{
-		LookAroundRate = AimingLookAroundRate;
-	}
-	else
-	{
-		LookAroundRate = HipLookAroundRate;
+		// Spawn the default weapon in the world 
+		AWeapon* DefaultWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
+		
+		// If Spawned then attach it to the character mesh
+		if (DefaultWeapon)
+		{
+			const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
+			if (HandSocket)
+			{
+				HandSocket->AttachActor(DefaultWeapon, GetMesh());
+			}
+		}
+		EquippedWeapon = DefaultWeapon;
 	}
 }
+
 
 
 

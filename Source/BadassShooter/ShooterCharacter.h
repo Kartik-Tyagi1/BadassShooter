@@ -65,6 +65,9 @@ protected:
 	UFUNCTION()
 	void AutoFireTimerReset(); // Callback for StartAutoFireTimer()
 
+	/* Function to spawn and attach the default weapon */
+	void SpawnDefaultWeapon();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -84,8 +87,6 @@ private:
 	class UCameraComponent* Camera;
 
 	
-
-
 	/*--------------------------------- LOOK AROUND RATES --------------------------------------------------------*/
 
 
@@ -191,6 +192,16 @@ private:
 	float AutomaticFireDuration;
 
 	FTimerHandle FireTimer;
+
+	/*--------------------------------- THE WEAPON --------------------------------------------------------*/
+
+	/* Currently Equipped Weapon */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class AWeapon* EquippedWeapon;
+
+	/* Reference to blueprint weapon class */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AWeapon> DefaultWeaponClass;
 
 
 
