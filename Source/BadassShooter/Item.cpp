@@ -86,37 +86,38 @@ void AItem::SetItemRarityAndStars()
 		ActiveStars.Add(false);
 	}
 
+	// Set from right to left so the stars are aligned to right of widget
 	switch (ItemRarity)
 	{
 	case EItemRarity::EIR_Lame:
 		ItemRarityText = FString("Lame");
-		ActiveStars[0] = true;
+		ActiveStars[4] = true;
 		break;
 	case EItemRarity::EIR_Okay:
 		ItemRarityText = FString("Okay");
-		ActiveStars[0] = true;
-		ActiveStars[1] = true;
+		ActiveStars[4] = true;
+		ActiveStars[3] = true;
 		break;
 	case EItemRarity::EIR_Cool:
 		ItemRarityText = FString("Cool");
-		ActiveStars[0] = true;
-		ActiveStars[1] = true;
+		ActiveStars[4] = true;
+		ActiveStars[3] = true;
 		ActiveStars[2] = true;
 		break;
 	case EItemRarity::EIR_Crazy:
 		ItemRarityText = FString("Crazy");
-		ActiveStars[0] = true;
-		ActiveStars[1] = true;
-		ActiveStars[2] = true;
+		ActiveStars[4] = true;
 		ActiveStars[3] = true;
+		ActiveStars[2] = true;
+		ActiveStars[1] = true;
 		break;
 	case EItemRarity::EIR_Badass:
 		ItemRarityText = FString("Badass");
-		ActiveStars[0] = true;
-		ActiveStars[1] = true;
-		ActiveStars[2] = true;
-		ActiveStars[3] = true;
 		ActiveStars[4] = true;
+		ActiveStars[3] = true;
+		ActiveStars[2] = true;
+		ActiveStars[1] = true;
+		ActiveStars[0] = true;
 		break;
 	}
 
