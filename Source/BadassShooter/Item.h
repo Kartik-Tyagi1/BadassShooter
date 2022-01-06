@@ -62,7 +62,11 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex);
 
+	/* Set the Item Rarity Textand Number of Stars shown in widget */
 	void SetItemRarityAndStars();
+
+	/* Set properties of the item based on the state*/
+	void SetItemProperties(EItemState State);
 
 private:
 
@@ -113,7 +117,7 @@ private:
 public:	
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
 	FORCEINLINE EItemState GetItemState() const { return ItemState; }
-	FORCEINLINE void SetItemState(EItemState State) { ItemState = State; }
+	void SetItemState(EItemState State);
 	
 	// FORCEINLINE AActor* GetOverlappedActor() const { return OverlappedActor; }
 
