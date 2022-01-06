@@ -116,8 +116,11 @@ private:
 
 public:	
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
+
 	FORCEINLINE EItemState GetItemState() const { return ItemState; }
 	void SetItemState(EItemState State);
+
+	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const { return ItemMesh; }
 	
 	// FORCEINLINE AActor* GetOverlappedActor() const { return OverlappedActor; }
 

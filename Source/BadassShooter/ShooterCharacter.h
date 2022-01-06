@@ -65,10 +65,19 @@ protected:
 	UFUNCTION()
 	void AutoFireTimerReset(); // Callback for StartAutoFireTimer()
 
+
+	/* Functions for Interacting (pickup/select) Items/Actors in game */
+	void InteractButtonPressed();
+	void InteractButtonReleased();
+
 	/* Function to spawn and attach the default weapon */
 	class AWeapon* SpawnDefaultWeapon();
 
+	/* Function to equip a weapon */
 	void EquipWeapon(AWeapon* WeaponToEquip);
+
+	/* Function to drop currently equipped weapon */
+	void DropWeapon();
 
 public:	
 	// Called every frame
