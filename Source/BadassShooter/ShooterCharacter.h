@@ -66,7 +66,9 @@ protected:
 	void AutoFireTimerReset(); // Callback for StartAutoFireTimer()
 
 	/* Function to spawn and attach the default weapon */
-	void SpawnDefaultWeapon();
+	class AWeapon* SpawnDefaultWeapon();
+
+	void EquipWeapon(AWeapon* WeaponToEquip);
 
 public:	
 	// Called every frame
@@ -197,7 +199,7 @@ private:
 
 	/* Currently Equipped Weapon */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
-	class AWeapon* EquippedWeapon;
+	AWeapon* EquippedWeapon;
 
 	/* Reference to blueprint weapon class */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))

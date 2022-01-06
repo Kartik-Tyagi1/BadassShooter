@@ -18,6 +18,18 @@ enum class EItemRarity : uint8
 	EIR_MAX UMETA(DisplayName = "DefaultMax")
 };
 
+UENUM(BlueprintType)
+enum class EItemState : uint8
+{
+	EIS_Pickup			UMETA(DisplayName = "Pickup"),
+	EIS_EquipInterping	UMETA(DisplayName = "EquipInterping"),
+	EIS_PickedUp		UMETA(DisplayName = "PickedUp"),
+	EIS_Equipped		UMETA(DisplayName = "Equipped"),
+	EIS_Falling			UMETA(DisplayName = "Falling"),
+
+	EIS_MAX UMETA(DisplayName = "DefaultMax")
+};
+
 UCLASS()
 class BADASSSHOOTER_API AItem : public AActor
 {
@@ -90,7 +102,20 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	TArray<bool> ActiveStars;
 
+	/* Reference to overlapped actor that will be used for equipping the weapon*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	AActor* OverlappedActor;
+
+	/* State of the item (on ground, equppied etc.) */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	EItemState ItemState;
+
 public:	
+	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
+	FORCEINLINE EItemState GetItemState() const { return ItemState; }
+	FORCEINLINE void SetItemState(EItemState State) { ItemState = State; }
+	
+	// FORCEINLINE AActor* GetOverlappedActor() const { return OverlappedActor; }
 
 
 };

@@ -12,7 +12,8 @@ AItem::AItem():
 	ItemType(FString("Submachine Gun")),
 	ItemRarity(EItemRarity::EIR_Cool),
 	ItemRarityText(FString("Cool")),
-	ItemAmount(0)
+	ItemAmount(0),
+	ItemState(EItemState::EIS_Pickup)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -64,6 +65,12 @@ void AItem::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 		{
 			PickupWidget->SetVisibility(true);
 		}
+
+		/*if (SweepResult.GetActor() != nullptr)
+		{
+			OverlappedActor = SweepResult.GetActor();
+		}*/
+
 	}
 }
 
@@ -76,6 +83,8 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 		{
 			PickupWidget->SetVisibility(false);
 		}
+
+		// OverlappedActor = nullptr;
 	}
 }
 

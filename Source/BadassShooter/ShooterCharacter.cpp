@@ -10,6 +10,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "DrawDebugHelpers.h"
 #include "Components/WidgetComponent.h"
+#include "Components/SphereComponent.h"
 #include "Weapon.h"
 
 // Sets default values
@@ -88,7 +89,7 @@ void AShooterCharacter::BeginPlay()
 	}
 
 	// Spawn and attach the default weapon to the character mesh
-	SpawnDefaultWeapon();
+	EquipWeapon(SpawnDefaultWeapon());
 
 }
 
@@ -440,26 +441,38 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 }
 
 
-
-
-void AShooterCharacter::SpawnDefaultWeapon()
+AWeapon* AShooterCharacter::SpawnDefaultWeapon()
 {
 	if (DefaultWeaponClass)
 	{
 		// Spawn the default weapon in the world 
-		AWeapon* DefaultWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
-		
-		// If Spawned then attach it to the character mesh
-		if (DefaultWeapon)
-		{
-			const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
-			if (HandSocket)
-			{
-				HandSocket->AttachActor(DefaultWeapon, GetMesh());
-			}
-		}
-		EquippedWeapon = DefaultWeapon;
+		return GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);		
 	}
+
+	return nullptr;
+}
+
+void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
+{
+
+	if (WeaponToEquip)
+	{
+		// Disable collision when weapon is equipped
+		WeaponToEquip->GetAreaSphere()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+		// Get the RightHandSocket on the Mesh
+		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
+		if (HandSocket)
+		{
+			// Attachec the weapon to the hand
+			HandSocket->AttachActor(WeaponToEquip, GetMesh());
+		}
+
+		EquippedWeapon = WeaponToEquip;
+		EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
+	}
+
+	
 }
 
 
