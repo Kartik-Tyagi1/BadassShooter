@@ -233,6 +233,17 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	AItem* TraceHitItem;
 
+	/*------------------- INTERPOLATION FOR ITEMS (THE WAY THEY MOVE UP AND DOWN WHEN EQUIPPING) -----------------------------------*/
+
+	/* Distance forward from the camera (front of the camera where items will travel to) */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	float CameraInterpDistance;
+
+	/* Distance up from the camera (up from the camera where items will travel to) */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	float CameraInterpElevation;
+
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
 	FORCEINLINE UCameraComponent* GetCamera() const { return Camera; }
@@ -244,4 +255,10 @@ public:
 	FORCEINLINE int8 GetOverlappedItemCount() const { return OverlappedItemCount; }
 	/* Adds/subtracts to/from OverlappedItemCount and updates bShouldTraceForItems */
 	void IncrementOverlappedItemCount(int8 Amount);
+
+	/* Get the end location for the item interpolation(basically a location in front and above the camera) */ 
+	FVector GetCameraInterpEndLocation();
+
+	/* Determine what type of item is the pickup item and call the corresponding interact function (SwapWeapon, etc.)*/
+	void GetPickupItem(AItem* Item);
 };

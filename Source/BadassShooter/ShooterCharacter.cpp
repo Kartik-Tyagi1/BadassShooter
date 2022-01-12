@@ -45,7 +45,10 @@ AShooterCharacter::AShooterCharacter() :
 	AutomaticFireDuration(0.1f),
 	// Item trace variables
 	bShouldTraceForItems(false),
-	OverlappedItemCount(0)
+	OverlappedItemCount(0),
+	// Item Interpolation Variables
+	CameraInterpDistance(250.f),
+	CameraInterpElevation(65.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -520,6 +523,7 @@ void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount)
 
 
 
+
 void AShooterCharacter::InteractButtonPressed()
 {
 
@@ -581,6 +585,22 @@ void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 	EquipWeapon(WeaponToSwap);
 }
 
+FVector AShooterCharacter::GetCameraInterpEndLocation()
+{
+	const FVector CameraStartLocation{ Camera->GetComponentLocation() };
+	const FVector CameraForwardDirection{ Camera->GetForwardVector() };
 
+	return CameraStartLocation + CameraForwardDirection * CameraInterpDistance + FVector{ 0.f, 0.f, CameraInterpElevation };
+}
+
+
+void AShooterCharacter::GetPickupItem(AItem* Item) 
+{
+	auto Weapon = Cast<AWeapon>(Item);
+	if (Weapon)
+	{
+		SwapWeapon(Weapon);
+	}
+}
 
 
