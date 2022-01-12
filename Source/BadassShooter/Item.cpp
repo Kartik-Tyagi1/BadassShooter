@@ -14,7 +14,12 @@ AItem::AItem():
 	ItemRarity(EItemRarity::EIR_Cool),
 	ItemRarityText(FString("Cool")),
 	ItemAmount(0),
-	ItemState(EItemState::EIS_Pickup)
+	ItemState(EItemState::EIS_Pickup),
+	// Item Interping Variables
+	ItemInterpStartLocation(FVector(0.f)),
+	ItemInterpTargetLocation(FVector(0.f)),
+	ItemZCurveInterpTime(0.7f),
+	bIsInterping(false)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -189,9 +194,35 @@ void AItem::SetItemProperties(EItemState State)
 
 }
 
+
 void AItem::SetItemState(EItemState State)
 {
 	ItemState = State;
 	SetItemProperties(State);
 }
+
+void AItem::StartItemInterpTimer(AShooterCharacter* Character)
+{
+	// This will be called from shooter character so we have to supply the data to the reference
+	ShooterCharacter = Character;
+
+	// Set Item Start location
+	ItemInterpStartLocation = GetActorLocation();
+
+	// Set IsInterping and ItemState
+	bIsInterping = true;
+	SetItemState(EItemState::EIS_EquipInterping);
+
+	// Start the Timer
+	GetWorldTimerManager().SetTimer(ItemInterpTimer, this, &AItem::EndItemInterpTimer, ItemZCurveInterpTime);
+}
+
+void AItem::EndItemInterpTimer()
+{
+	if (ShooterCharacter)
+	{
+		ShooterCharacter->GetPickupItem(this);
+	}
+}
+
 
