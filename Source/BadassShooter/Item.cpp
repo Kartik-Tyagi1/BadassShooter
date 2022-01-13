@@ -269,6 +269,14 @@ void AItem::InterpolateItemLocation(float DeltaTime)
 		const FVector ItemToCameraVector{ 0.f, 0.f, (CameraLocation - ItemLocation).Z };
 		const float DeltaZ = ItemToCameraVector.Size();
 
+		// Linear Interpolation of the X and Y value
+		const FVector ItemCurrentLocation = GetActorLocation();
+		const float ItemXValue = FMath::FInterpTo(ItemCurrentLocation.X, CameraLocation.X, DeltaTime, 30.f);
+		const float ItemYValue = FMath::FInterpTo(ItemCurrentLocation.Y, CameraLocation.Y, DeltaTime, 30.f);
+
+		ItemLocation.X = ItemXValue;
+		ItemLocation.Y = ItemYValue;
+
 		// Add the delta to the item location and set the actor location
 		ItemLocation.Z += CurveValue * DeltaZ;
 		SetActorLocation(ItemLocation, true, nullptr, ETeleportType::TeleportPhysics);
