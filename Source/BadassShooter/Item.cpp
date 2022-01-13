@@ -68,12 +68,16 @@ void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Check if bIsInterping and start interpolation
+	InterpolateItemLocation(DeltaTime);
+
 }
 
 void AItem::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor)
 	{
+		// This is not ShooterCharacterRef Member. This is a local creation
 		AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor);
 		if (ShooterCharacter)
 		{
@@ -86,6 +90,7 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 {
 	if (OtherActor)
 	{
+		// This is not ShooterCharacterRef Member. This is a local creation
 		AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor);
 		if (ShooterCharacter)
 		{
@@ -190,6 +195,22 @@ void AItem::SetItemProperties(EItemState State)
 		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
+	case EItemState::EIS_EquipInterping:
+		// Set Pickup Widget
+		PickupWidget->SetVisibility(false);
+		// Set ItemMesh Properties
+		ItemMesh->SetSimulatePhysics(false);
+		ItemMesh->SetEnableGravity(false);
+		ItemMesh->SetVisibility(true);
+		ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		// Set AreaSphere Properties
+		AreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		// Set CollisionBox properties
+		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
 	}
 
 }
@@ -201,10 +222,10 @@ void AItem::SetItemState(EItemState State)
 	SetItemProperties(State);
 }
 
-void AItem::StartItemInterpTimer(AShooterCharacter* Character)
+void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character)
 {
 	// This will be called from shooter character so we have to supply the data to the reference
-	ShooterCharacter = Character;
+	ShooterCharacterRef = Character;
 
 	// Set Item Start location
 	ItemInterpStartLocation = GetActorLocation();
@@ -219,10 +240,41 @@ void AItem::StartItemInterpTimer(AShooterCharacter* Character)
 
 void AItem::EndItemInterpTimer()
 {
-	if (ShooterCharacter)
+	bIsInterping = false;
+	if (ShooterCharacterRef)
 	{
-		ShooterCharacter->GetPickupItem(this);
+		ShooterCharacterRef->GetPickupItem(this);
 	}
+}
+
+void AItem::InterpolateItemLocation(float DeltaTime)
+{
+	if (!bIsInterping) return;
+
+	if (ShooterCharacterRef && ItemZCurve)
+	{
+		// Get amount of time elapsed after the item interp timer has started
+		const float ElapsedTime = GetWorldTimerManager().GetTimerElapsed(ItemInterpTimer);
+
+		// Get the value of the item z curve at the elapsed time
+		const float CurveValue = ItemZCurve->GetFloatValue(ElapsedTime);
+
+		// All Z calculations are based on the Z of the start location
+		FVector ItemLocation = ItemInterpStartLocation;
+
+		// This is where the end locaiton of the camera is (a little in front and above the camera)
+		const FVector CameraLocation = ShooterCharacterRef->GetCameraInterpEndLocation();
+
+		// Calculate the Delta Between the Item Location and the Camera Location so the item will rise
+		const FVector ItemToCameraVector{ 0.f, 0.f, (CameraLocation - ItemLocation).Z };
+		const float DeltaZ = ItemToCameraVector.Size();
+
+		// Add the delta to the item location and set the actor location
+		ItemLocation.Z += CurveValue * DeltaZ;
+		SetActorLocation(ItemLocation, true, nullptr, ETeleportType::TeleportPhysics);
+
+	}
+
 }
 
 

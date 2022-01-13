@@ -68,7 +68,11 @@ protected:
 	/* Set properties of the item based on the state*/
 	void SetItemProperties(EItemState State);
 
+	/* Call back function to finish interping after the interping timer is done */
 	void EndItemInterpTimer();
+
+	/* Function to handle the item interpolation when picking up and item */
+	void InterpolateItemLocation(float DeltaTime);
 
 private:
 
@@ -128,6 +132,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	FVector ItemInterpTargetLocation;
 
+	/* Length of time the timer will run (this works in the same time as the item z curve. If one changes so must the other. OR ELSE!!!! */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float ItemZCurveInterpTime;
+
 	/* Boolean to determine if the item intepring is occuring */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	bool bIsInterping;
@@ -135,13 +143,9 @@ private:
 	/* Timer handle that start the interpolation and calls EndItemInterpTimer function callback */
 	FTimerHandle ItemInterpTimer;
 
-	/* Length of time the timer will run (this works in the same time as the item z curve. If one changes so must the other. OR ELSE!!!! */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	float ItemZCurveInterpTime;
-
 	/* Reference to shooter character class */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	class AShooterCharacter* ShooterCharacter;
+	class AShooterCharacter* ShooterCharacterRef;
 
 
 public:	
@@ -153,6 +157,6 @@ public:
 
 	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const { return ItemMesh; }
 
-	void StartItemInterpTimer(AShooterCharacter* Character);
+	void StartItemCurveInterpTimer(AShooterCharacter* Character);
 	
 };

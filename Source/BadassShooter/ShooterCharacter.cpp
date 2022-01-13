@@ -529,8 +529,7 @@ void AShooterCharacter::InteractButtonPressed()
 
 	if (TraceHitItem)
 	{
-		auto TraceHitWeapon = Cast<AWeapon>(TraceHitItem);
-		SwapWeapon(TraceHitWeapon);
+		TraceHitItem->StartItemCurveInterpTimer(this);
 	}
 	
 }
