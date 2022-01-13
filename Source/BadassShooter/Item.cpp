@@ -245,6 +245,8 @@ void AItem::EndItemInterpTimer()
 	{
 		ShooterCharacterRef->GetPickupItem(this);
 	}
+	// Set Item back to normal scale
+	SetActorScale3D(FVector(1.f));
 }
 
 void AItem::InterpolateItemLocation(float DeltaTime)
@@ -280,6 +282,13 @@ void AItem::InterpolateItemLocation(float DeltaTime)
 		// Add the delta to the item location and set the actor location
 		ItemLocation.Z += CurveValue * DeltaZ;
 		SetActorLocation(ItemLocation, true, nullptr, ETeleportType::TeleportPhysics);
+
+		if (ItemScaleCurve)
+		{
+			// Shrink Item as the interpolation happens
+			const float CurveScaleValue = ItemScaleCurve->GetFloatValue(ElapsedTime);
+			SetActorScale3D(FVector(CurveScaleValue, CurveScaleValue, CurveScaleValue));
+		}
 
 	}
 
