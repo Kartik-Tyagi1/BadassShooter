@@ -6,6 +6,15 @@
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class EAmmoType : uint8
+{
+	EAT_Pistol	UMETA(DisplayName = "Pistol"),
+	EAT_AR		UMETA(DisplayName = "AssaultRifle"),
+
+	EAT_MAX		UMETA(DisplayName = "DefaultMAX")
+};
+
 UCLASS()
 class BADASSSHOOTER_API AShooterCharacter : public ACharacter
 {
@@ -83,6 +92,9 @@ protected:
 
 	/* Function to swap weapons */
 	void SwapWeapon(AWeapon* WeaponToSwap);
+
+	/* Sets up inital ammo in the ammo map */
+	void InitalizeAmmoMap();
 
 public:	
 	// Called every frame
@@ -242,6 +254,21 @@ private:
 	/* Distance up from the camera (up from the camera where items will travel to) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
 	float CameraInterpElevation;
+
+	/*------------------------------------------------- AMMO VARIABLES -------------------------------------------------------------*/
+
+	/* Maps the type of weapon to the amount of ammo we have available on the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Ammo, meta = (AllowPrivateAccess = "true"))
+	TMap<EAmmoType, int32> AmmoMap;
+
+	/* Maps the type of weapon to the amount of ammo we have available on the character */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, meta = (AllowPrivateAccess = "true"))
+	int32 StartingPistolAmmo;
+
+	/* Maps the type of weapon to the amount of ammo we have available on the character */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, meta = (AllowPrivateAccess = "true"))
+	int32 StartingARAmmo;
+
 
 
 public:

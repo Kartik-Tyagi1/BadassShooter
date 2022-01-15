@@ -48,7 +48,10 @@ AShooterCharacter::AShooterCharacter() :
 	OverlappedItemCount(0),
 	// Item Interpolation Variables
 	CameraInterpDistance(250.f),
-	CameraInterpElevation(65.f)
+	CameraInterpElevation(65.f),
+	// Intial ammo amounts
+	StartingPistolAmmo(75),
+	StartingARAmmo(120)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -96,6 +99,9 @@ void AShooterCharacter::BeginPlay()
 
 	// Spawn and attach the default weapon to the character mesh
 	EquipWeapon(SpawnDefaultWeapon());
+
+	// Set up the ammo map with the starting ammo values
+	InitalizeAmmoMap();
 
 }
 
@@ -584,6 +590,7 @@ void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 	EquipWeapon(WeaponToSwap);
 }
 
+
 FVector AShooterCharacter::GetCameraInterpEndLocation()
 {
 	const FVector CameraStartLocation{ Camera->GetComponentLocation() };
@@ -600,6 +607,12 @@ void AShooterCharacter::GetPickupItem(AItem* Item)
 	{
 		SwapWeapon(Weapon);
 	}
+}
+
+void AShooterCharacter::InitalizeAmmoMap()
+{
+	AmmoMap.Add(EAmmoType::EAT_Pistol, StartingPistolAmmo);
+	AmmoMap.Add(EAmmoType::EAT_AR, StartingARAmmo);
 }
 
 
