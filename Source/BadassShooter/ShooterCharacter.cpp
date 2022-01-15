@@ -372,17 +372,18 @@ void AShooterCharacter::AutoFireTimerReset()
 
 void AShooterCharacter::FireWeapon()
 {
+	if (EquippedWeapon == nullptr) return;
 		
 	if (FireSound)
 	{
 		UGameplayStatics::PlaySound2D(this, FireSound);
 	}
 
-	const USkeletalMeshSocket* BarrelSocket_1 = GetMesh()->GetSocketByName(TEXT("Muzzle_01"));
+	const USkeletalMeshSocket* BarrelSocket_1 = EquippedWeapon->GetItemMesh()->GetSocketByName(TEXT("MuzzleFlashSocket"));
 
 	if (BarrelSocket_1)
 	{
-		FTransform BarrelSocketTransform_1 = BarrelSocket_1->GetSocketTransform(GetMesh());
+		FTransform BarrelSocketTransform_1 = BarrelSocket_1->GetSocketTransform(EquippedWeapon->GetItemMesh());
 		if (MuzzleFlash)
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, BarrelSocketTransform_1);
@@ -410,11 +411,10 @@ void AShooterCharacter::FireWeapon()
 
 	StartCrosshairShootTimer();
 
-	if (EquippedWeapon)
-	{
-		// Subtract one from ammo in the magazine
-		EquippedWeapon->DecrementAmmo();
-	}
+
+	// Subtract one from ammo in the magazine
+	EquippedWeapon->DecrementAmmo();
+
 
 }
 
