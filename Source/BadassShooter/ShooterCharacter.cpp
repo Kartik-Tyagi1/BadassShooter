@@ -335,8 +335,11 @@ void AShooterCharacter::AimingButtonReleased()
 
 void AShooterCharacter::FireButtonPressed()
 {
-	bFireButtonPressed = true;
-	StartAutoFireTimer();
+	if (WeaponHasAmmo())
+	{
+		bFireButtonPressed = true;
+		StartAutoFireTimer();
+	}
 }
 
 void AShooterCharacter::FireButtonReleased()
@@ -356,10 +359,13 @@ void AShooterCharacter::StartAutoFireTimer()
 
 void AShooterCharacter::AutoFireTimerReset()
 {
-	bShouldFire = true;
-	if (bFireButtonPressed)
+	if (WeaponHasAmmo())
 	{
-		StartAutoFireTimer();
+		bShouldFire = true;
+		if (bFireButtonPressed)
+		{
+			StartAutoFireTimer();
+		}
 	}
 }
 
@@ -403,6 +409,12 @@ void AShooterCharacter::FireWeapon()
 	}
 
 	StartCrosshairShootTimer();
+
+	if (EquippedWeapon)
+	{
+		// Subtract one from ammo in the magazine
+		EquippedWeapon->DecrementAmmo();
+	}
 
 }
 
@@ -613,6 +625,13 @@ void AShooterCharacter::InitalizeAmmoMap()
 {
 	AmmoMap.Add(EAmmoType::EAT_Pistol, StartingPistolAmmo);
 	AmmoMap.Add(EAmmoType::EAT_AR, StartingARAmmo);
+}
+
+bool AShooterCharacter::WeaponHasAmmo()
+{
+	if (EquippedWeapon == nullptr) return false;
+
+	return EquippedWeapon->GetAmmoInMagazine() > 0;
 }
 
 

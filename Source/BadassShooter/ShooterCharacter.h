@@ -96,6 +96,9 @@ protected:
 	/* Sets up inital ammo in the ammo map */
 	void InitalizeAmmoMap();
 
+	/* Check if weapon has ammo */
+	bool WeaponHasAmmo();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

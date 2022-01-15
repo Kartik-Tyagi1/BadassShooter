@@ -35,9 +35,18 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Falling, meta = (AllowPrivateAccess = "true"))
 	float WeaponImpulseAmount;
 
+	/* This the amount of ammo in the gun magazine itself (NOT CARRIED AMMO) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	int32 AmmoInMagazine;
+
 public:
 	void ThrowWeapon();
 
+	/* Function to return ammo in magazine (called in shooter character class) */
+	FORCEINLINE int32 GetAmmoInMagazine() const { return AmmoInMagazine; }
+
+	/* Decrement ammo in magazine after firing (called in shooter character class) */
+	void DecrementAmmo();
 
 	
 };

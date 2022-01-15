@@ -8,7 +8,8 @@
 AWeapon::AWeapon() :
 	ThrowWeaponTime(1.3f),
 	bIsFalling(false),
-	WeaponImpulseAmount(2'000.f)
+	WeaponImpulseAmount(2'000.f),
+	AmmoInMagazine(0)
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -50,5 +51,17 @@ void AWeapon::StopFalling()
 {
 	bIsFalling = false;
 	SetItemState(EItemState::EIS_Pickup);
+}
+
+void AWeapon::DecrementAmmo()
+{
+	if (AmmoInMagazine - 1 <= 0)
+	{
+		AmmoInMagazine = 0;
+	}
+	else
+	{
+		--AmmoInMagazine;
+	}
 }
 
