@@ -15,6 +15,17 @@ enum class EAmmoType : uint8
 	EAT_MAX		UMETA(DisplayName = "DefaultMAX")
 };
 
+UENUM(BlueprintType)
+enum class ECombatState : uint8
+{
+	ECS_Unoccupied				UMETA(DisplayName = "Unoccupied"),
+	ECS_FireTImerInProgress		UMETA(DisplayName = "FireTImerInProgress"),
+	ECS_Reloading				UMETA(DisplayName = "Reloading"),
+
+	ECS_MAX						UMETA(DisplayName = "DefaultMAX")
+
+};
+
 UCLASS()
 class BADASSSHOOTER_API AShooterCharacter : public ACharacter
 {
@@ -98,6 +109,11 @@ protected:
 
 	/* Check if weapon has ammo */
 	bool WeaponHasAmmo();
+
+	/* Fire Weapon Functions */
+	void PlayFireSound();
+	void SendBullet();
+	void PlayGunFireMontage();
 
 public:	
 	// Called every frame
@@ -211,13 +227,14 @@ private:
 	bool bFiringBullet;
 	FTimerHandle CrosshairShootTimer;
 
-	/*--------------------------------- AUTOMATIC FIRE --------------------------------------------------------*/
+	/*--------------------------------- WEAPON FIRE AND RELOADING  --------------------------------------------------------*/
+
+	/* Combat state of the character (determines if player and shoot/reload) */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	ECombatState CombatState;
 
 	/* Boolean for if the player is pressing the fire button */
 	bool bFireButtonPressed;
-
-	/* Boolean to determine if the firing of the weapon shoudl continue */
-	bool bShouldFire;
 
 	/* Duration between each bullet fire */
 	float AutomaticFireDuration;
