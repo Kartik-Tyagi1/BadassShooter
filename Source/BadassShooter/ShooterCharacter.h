@@ -115,6 +115,12 @@ protected:
 	void SendBullet();
 	void PlayGunFireMontage();
 
+	/* Reloading Functions */
+	void ReloadButtonPressed();
+	void ReloadWeapon();
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -240,6 +246,10 @@ private:
 	float AutomaticFireDuration;
 
 	FTimerHandle FireTimer;
+
+	/* Reloading Animation (section depends on the weapon type) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* ReloadMontage;
 
 	/*--------------------------------- THE WEAPON AND TRACING FOR ITEMS --------------------------------------------------------*/
 

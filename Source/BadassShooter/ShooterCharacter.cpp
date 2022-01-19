@@ -144,6 +144,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("InteractButton", IE_Pressed, this, &AShooterCharacter::InteractButtonPressed);
 	PlayerInputComponent->BindAction("InteractButton", IE_Released, this, &AShooterCharacter::InteractButtonReleased);
 
+	PlayerInputComponent->BindAction("ReloadButton", IE_Pressed, this, &AShooterCharacter::ReloadButtonPressed);
+
 }
 
 void AShooterCharacter::SetCameraFOV(float DeltaTime)
@@ -362,7 +364,7 @@ void AShooterCharacter::AutoFireTimerReset()
 	}
 	else
 	{
-		// Reload Weapon
+		ReloadWeapon();
 	}
 }
 
@@ -553,6 +555,7 @@ void AShooterCharacter::PlayGunFireMontage()
 
 
 
+
 void AShooterCharacter::InteractButtonPressed()
 {
 
@@ -646,4 +649,34 @@ bool AShooterCharacter::WeaponHasAmmo()
 }
 
 
+void AShooterCharacter::ReloadButtonPressed()
+{
+	ReloadWeapon();
+}
 
+void AShooterCharacter::ReloadWeapon()
+{
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
+	CombatState = ECombatState::ECS_Reloading;
+
+	// TODO: Switch on weapon type to determine which montage section to play (aka which reload anim)
+	FName MontageSection = FName("Reload_AssaultRifle");
+
+	// TODO: Create function to check if character has the correct type of ammo
+	if (true)
+	{
+		if (ReloadMontage)
+		{
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+			AnimInstance->Montage_Play(ReloadMontage);
+			AnimInstance->Montage_JumpToSection(MontageSection);
+		}
+	}
+
+	FinishReloading();
+}
+
+void AShooterCharacter::FinishReloading()
+{
+	CombatState = ECombatState::ECS_Unoccupied;
+}
