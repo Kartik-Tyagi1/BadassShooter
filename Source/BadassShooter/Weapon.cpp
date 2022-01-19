@@ -9,7 +9,8 @@ AWeapon::AWeapon() :
 	ThrowWeaponTime(1.3f),
 	bIsFalling(false),
 	WeaponImpulseAmount(2'000.f),
-	AmmoInMagazine(0)
+	AmmoInMagazine(0),
+	WeaponType(EWeaponType::EWT_AssaultRifle)
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
