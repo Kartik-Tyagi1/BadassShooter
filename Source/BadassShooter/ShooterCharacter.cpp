@@ -670,12 +670,34 @@ void AShooterCharacter::ReloadWeapon()
 		}
 	}
 
-	FinishReloading();
 }
 
 void AShooterCharacter::FinishReloading()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
+	if (EquippedWeapon == nullptr) return;
+
+	// Update the ammo map with the reloaded ammo
+	const auto AmmoType = EquippedWeapon->GetAmmoType();
+
+	if (AmmoMap.Contains(AmmoType))
+	{
+		int32 CarriedAmmo = AmmoMap[AmmoType];
+		const int32 MagazineEmptySpace = EquippedWeapon->GetMaximumMagazineCapacity() - EquippedWeapon->GetAmmoInMagazine();
+		if (MagazineEmptySpace > CarriedAmmo)
+		{
+			CarriedAmmo = 0;
+			EquippedWeapon->UpdateAmmo(MagazineEmptySpace);
+			AmmoMap.Add(AmmoType, CarriedAmmo);
+		}
+		else
+		{
+			CarriedAmmo -= MagazineEmptySpace;
+			EquippedWeapon->UpdateAmmo(MagazineEmptySpace);
+			AmmoMap.Add(AmmoType, CarriedAmmo);
+		}
+	}
+	
 }
 
 bool AShooterCharacter::CarryingAmmo()

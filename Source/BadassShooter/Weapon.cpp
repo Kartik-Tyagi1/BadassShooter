@@ -9,7 +9,8 @@ AWeapon::AWeapon() :
 	ThrowWeaponTime(1.3f),
 	bIsFalling(false),
 	WeaponImpulseAmount(2'000.f),
-	AmmoInMagazine(0),
+	AmmoInMagazine(30),
+	MaximumMagazineCapacity(30),
 	WeaponType(EWeaponType::EWT_AssaultRifle),
 	AmmoType(EAmmoType::EAT_AR),
 	ReloadMontageSectionName(FName(TEXT("Reload_AssaultRifle")))
@@ -66,5 +67,18 @@ void AWeapon::DecrementAmmo()
 	{
 		--AmmoInMagazine;
 	}
+}
+
+void AWeapon::UpdateAmmo(int32 Amount)
+{
+	if (AmmoInMagazine + Amount >= MaximumMagazineCapacity)
+	{
+		AmmoInMagazine = MaximumMagazineCapacity;
+	}
+	else
+	{
+		AmmoInMagazine += Amount;
+	}
+
 }
 

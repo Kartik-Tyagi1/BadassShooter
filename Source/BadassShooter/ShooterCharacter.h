@@ -112,8 +112,10 @@ protected:
 	/* Reloading Functions */
 	void ReloadButtonPressed();
 	void ReloadWeapon();
-	UFUNCTION(BlueprintCallable)
+
+	UFUNCTION(BlueprintCallable) // Called from blueprint (reload montage anim notify)
 	void FinishReloading();
+
 	bool CarryingAmmo();
 
 public:	

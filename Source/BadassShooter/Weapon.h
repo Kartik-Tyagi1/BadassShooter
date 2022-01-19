@@ -49,6 +49,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	int32 AmmoInMagazine;
 
+	/* This the max amoutn of ammo in the gun magazine can hold */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	int32 MaximumMagazineCapacity;
+
 	/* Type of the weapon (used for initalizing weapon properties like ammo type and shit) */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	EWeaponType WeaponType;
@@ -66,6 +70,7 @@ public:
 
 	/* Function to return ammo in magazine (called in shooter character class) */
 	FORCEINLINE int32 GetAmmoInMagazine() const { return AmmoInMagazine; }
+	FORCEINLINE int32 GetMaximumMagazineCapacity() const { return MaximumMagazineCapacity; }
 
 	/* Decrement ammo in magazine after firing (called in shooter character class) */
 	void DecrementAmmo();
@@ -73,6 +78,8 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
 	FORCEINLINE FName GetReloadMontageSectionName() const { return ReloadMontageSectionName; }
+
+	void UpdateAmmo(int32 Amount);
 
 	
 };
