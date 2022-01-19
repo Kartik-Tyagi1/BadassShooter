@@ -10,7 +10,9 @@ AWeapon::AWeapon() :
 	bIsFalling(false),
 	WeaponImpulseAmount(2'000.f),
 	AmmoInMagazine(0),
-	WeaponType(EWeaponType::EWT_AssaultRifle)
+	WeaponType(EWeaponType::EWT_AssaultRifle),
+	AmmoType(EAmmoType::EAT_AR),
+	ReloadMontageSectionName(FName(TEXT("Reload_AssaultRifle")))
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
