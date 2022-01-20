@@ -65,6 +65,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	FName ReloadMontageSectionName;
 
+	/* Name of the bone of the magazine for the weapon */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	FName WeaponMagBoneName;
+
+	/* Boolean to set if the weapon magazine is moving */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	bool bIsMagMoving;
+
 public:
 	void ThrowWeapon();
 
@@ -78,8 +86,10 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
 	FORCEINLINE FName GetReloadMontageSectionName() const { return ReloadMontageSectionName; }
+	FORCEINLINE FName GetWeaponMagBoneName() const { return WeaponMagBoneName; }
 
 	void UpdateAmmo(int32 Amount);
+	FORCEINLINE void SetIsMagMoving(bool Moving) { bIsMagMoving = Moving; }
 
 	
 };

@@ -649,6 +649,7 @@ bool AShooterCharacter::WeaponHasAmmo()
 }
 
 
+
 void AShooterCharacter::ReloadButtonPressed()
 {
 	ReloadWeapon();
@@ -700,6 +701,7 @@ void AShooterCharacter::FinishReloading()
 	
 }
 
+
 bool AShooterCharacter::CarryingAmmo()
 {
 	if (EquippedWeapon == nullptr) return false;
@@ -711,3 +713,28 @@ bool AShooterCharacter::CarryingAmmo()
 	}
 	return false;
 }
+
+void AShooterCharacter::GrabMagazine()
+{
+	if (EquippedWeapon == nullptr) return;
+
+	// Get the magazine bone transform by getting the bone index then the transform
+	int32 MagBoneIndex = EquippedWeapon->GetItemMesh()->GetBoneIndex(EquippedWeapon->GetWeaponMagBoneName());
+	WeaponMagTransform = EquippedWeapon->GetItemMesh()->GetBoneTransform(MagBoneIndex);
+
+	// Create Attachment Rules and attach the HandSceneComponent to the character's left hand
+	FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepRelative, true);
+	HandSceneComponent->AttachToComponent(GetMesh(), AttachmentRules, FName(TEXT("Hand_L")));
+
+	// Set the HandSceneComponent transform to the magazine so that it follows the movement of the hand
+	HandSceneComponent->SetWorldTransform(WeaponMagTransform);
+
+	EquippedWeapon->SetIsMagMoving(true);
+
+}
+
+void AShooterCharacter::ReplaceMagazine()
+{
+	EquippedWeapon->SetIsMagMoving(false);
+}
+

@@ -110,12 +110,17 @@ protected:
 	void PlayGunFireMontage();
 
 	/* Reloading Functions */
-	void ReloadButtonPressed();
-	void ReloadWeapon();
-
 	UFUNCTION(BlueprintCallable) // Called from blueprint (reload montage anim notify)
 	void FinishReloading();
 
+	UFUNCTION(BlueprintCallable) // Called from blueprint (reload montage anim notify)
+	void GrabMagazine();
+
+	UFUNCTION(BlueprintCallable) // Called from blueprint (reload montage anim notify)
+	void ReplaceMagazine();
+
+	void ReloadButtonPressed();
+	void ReloadWeapon();
 	bool CarryingAmmo();
 
 public:	
@@ -295,6 +300,14 @@ private:
 	/* Maps the type of weapon to the amount of ammo we have available on the character */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, meta = (AllowPrivateAccess = "true"))
 	int32 StartingARAmmo;
+
+	/* Transform of the weapon magazine */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	FTransform WeaponMagTransform;
+
+	/* Scene component that will have the transform of the weapon magazine but will be attached to the hand of the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	USceneComponent* HandSceneComponent;
 
 
 

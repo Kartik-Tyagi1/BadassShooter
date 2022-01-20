@@ -13,7 +13,8 @@ AWeapon::AWeapon() :
 	MaximumMagazineCapacity(30),
 	WeaponType(EWeaponType::EWT_AssaultRifle),
 	AmmoType(EAmmoType::EAT_AR),
-	ReloadMontageSectionName(FName(TEXT("Reload_AssaultRifle")))
+	ReloadMontageSectionName(FName(TEXT("Reload_AssaultRifle"))),
+	WeaponMagBoneName(FName(TEXT("Clip_Bone")))
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
