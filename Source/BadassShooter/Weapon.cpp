@@ -14,7 +14,8 @@ AWeapon::AWeapon() :
 	WeaponType(EWeaponType::EWT_AssaultRifle),
 	AmmoType(EAmmoType::EAT_AR),
 	ReloadMontageSectionName(FName(TEXT("Reload_AssaultRifle"))),
-	WeaponMagBoneName(FName(TEXT("Clip_Bone")))
+	WeaponMagBoneName(FName(TEXT("Clip_Bone"))),
+	bIsMagMoving(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
 }

@@ -78,6 +78,8 @@ AShooterCharacter::AShooterCharacter() :
 	GetCharacterMovement()->JumpZVelocity = 300.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
+	// Set HandSceneComponent (Attachment is setup in GrabMagazine)
+	HandSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("HandSceneComponent"));
 
 }
 
@@ -717,6 +719,7 @@ bool AShooterCharacter::CarryingAmmo()
 void AShooterCharacter::GrabMagazine()
 {
 	if (EquippedWeapon == nullptr) return;
+	if (HandSceneComponent == nullptr) return;
 
 	// Get the magazine bone transform by getting the bone index then the transform
 	int32 MagBoneIndex = EquippedWeapon->GetItemMesh()->GetBoneIndex(EquippedWeapon->GetWeaponMagBoneName());
