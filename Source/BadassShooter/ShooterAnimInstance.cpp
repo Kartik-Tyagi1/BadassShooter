@@ -6,6 +6,15 @@
 
 
 
+UShooterAnimInstance::UShooterAnimInstance() :
+	CharacterSpeed(0.f),
+	bIsInAir(false),
+	bIsMoving(false),
+	bIsAiming(false),
+	CharacterYawCurrentFrame(0.f),
+	CharacterYawLastFrame(0.f),
+	RootYawOffset(0.f)
+{}
 void UShooterAnimInstance::NativeInitializeAnimation()
 {
 	ShooterCharacter = Cast<AShooterCharacter>(TryGetPawnOwner());
@@ -40,4 +49,26 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		// Determine if Aiming
 		bIsAiming = ShooterCharacter->GetIsAiming();
 	}
+
+	TurnInPlace();
+}
+
+void UShooterAnimInstance::TurnInPlace()
+{
+	if (ShooterCharacter == nullptr) return;
+
+	if (CharacterSpeed > 0)
+	{
+
+	}
+	else
+	{
+		CharacterYawLastFrame = CharacterYawCurrentFrame;
+		CharacterYawCurrentFrame = ShooterCharacter->GetActorRotation().Yaw;
+		const float YawDelta{ CharacterYawCurrentFrame - CharacterYawLastFrame };
+
+		RootYawOffset -= YawDelta;
+	}
+		
+
 }

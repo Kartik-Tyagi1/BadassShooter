@@ -15,12 +15,17 @@ class BADASSSHOOTER_API UShooterAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
+	UShooterAnimInstance();
+
 	/* Begin Play of AnimInstance class */
 	virtual void NativeInitializeAnimation() override;
 
 	/* Tick of the AnimInstance Class */
 	UFUNCTION(BlueprintCallable)
 	void UpdateAnimationProperties(float DeltaTime);
+
+protected:
+	void TurnInPlace();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
@@ -37,8 +42,21 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	bool bIsAiming;
-
-
-
 	
+	/* Used for the aim offset */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Aiming, meta = (AllowPrivateAccess = "true"))
+	float CharacterYawCurrentFrame;
+
+	/* Used to keep the values when not moving */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Aiming, meta = (AllowPrivateAccess = "true"))
+	float CharacterYawLastFrame;
+
+	/* Used for the aim offset */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Aiming, meta = (AllowPrivateAccess = "true"))
+	float RootYawOffset;
+	
+
+
+
+
 };
