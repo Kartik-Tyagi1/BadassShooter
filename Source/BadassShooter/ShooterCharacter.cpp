@@ -71,9 +71,9 @@ AShooterCharacter::AShooterCharacter() :
 	// Do not rotate character with camera
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character will move in camera direction and rotate ...
+	GetCharacterMovement()->bOrientRotationToMovement = false; // Character will move in camera direction and rotate ...
 	GetCharacterMovement()->RotationRate = FRotator{ 0.f, 600.f, 0.f }; // At this rate
 	GetCharacterMovement()->JumpZVelocity = 300.f;
 	GetCharacterMovement()->AirControl = 0.2f;
@@ -315,25 +315,11 @@ void AShooterCharacter::EndCrosshairShootTimer()
 void AShooterCharacter::AimingButtonPressed()
 {
 	bIsAiming = true;
-
-	// Do not rotate character with camera when aiming
-	bUseControllerRotationRoll = true;
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = true;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-
 }
 
 void AShooterCharacter::AimingButtonReleased()
 {
 	bIsAiming = false;
-
-	// Go back to defaults when back to normal
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-
 }
 
 

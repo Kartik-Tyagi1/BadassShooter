@@ -47,6 +47,11 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 
 		// Determine if Aiming
 		bIsAiming = ShooterCharacter->GetIsAiming();
+
+		// Determine the yaw direction of the character movement
+		FRotator AimRotation = ShooterCharacter->GetBaseAimRotation();
+		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(ShooterCharacter->GetVelocity());
+		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;;
 	}
 
 	SetAimOffsetValues();
