@@ -3,7 +3,7 @@
 #include "ShooterAnimInstance.h"
 #include "ShooterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "Kismet/KismetMathLibrary.h"
 
 
 UShooterAnimInstance::UShooterAnimInstance() :
@@ -11,9 +11,8 @@ UShooterAnimInstance::UShooterAnimInstance() :
 	bIsInAir(false),
 	bIsMoving(false),
 	bIsAiming(false),
-	CharacterYawCurrentFrame(0.f),
-	CharacterYawLastFrame(0.f),
-	RootYawOffset(0.f)
+	AimingPitch(0.f),
+	AimingYaw(0.f)
 {}
 void UShooterAnimInstance::NativeInitializeAnimation()
 {
@@ -50,25 +49,15 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		bIsAiming = ShooterCharacter->GetIsAiming();
 	}
 
-	TurnInPlace();
+	SetAimOffsetValues();
 }
 
-void UShooterAnimInstance::TurnInPlace()
+void UShooterAnimInstance::SetAimOffsetValues()
 {
 	if (ShooterCharacter == nullptr) return;
 
-	if (CharacterSpeed > 0)
-	{
-
-	}
-	else
-	{
-		CharacterYawLastFrame = CharacterYawCurrentFrame;
-		CharacterYawCurrentFrame = ShooterCharacter->GetActorRotation().Yaw;
-		const float YawDelta{ CharacterYawCurrentFrame - CharacterYawLastFrame };
-
-		RootYawOffset -= YawDelta;
-	}
+	FRotator AimingRotation = UKismetMathLibrary::NormalizedDeltaRotator(ShooterCharacter->GetBaseAimRotation(), ShooterCharacter->GetActorRotation());
+	AimingPitch = AimingRotation.Pitch;
+	AimingYaw = AimingRotation.Yaw;
 		
-
 }

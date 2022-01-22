@@ -25,7 +25,7 @@ public:
 	void UpdateAnimationProperties(float DeltaTime);
 
 protected:
-	void TurnInPlace();
+	void SetAimOffsetValues();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
@@ -45,15 +45,12 @@ private:
 	
 	/* Used for the aim offset */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Aiming, meta = (AllowPrivateAccess = "true"))
-	float CharacterYawCurrentFrame;
+	float AimingPitch;
 
 	/* Used to keep the values when not moving */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Aiming, meta = (AllowPrivateAccess = "true"))
-	float CharacterYawLastFrame;
+	float AimingYaw;
 
-	/* Used for the aim offset */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Aiming, meta = (AllowPrivateAccess = "true"))
-	float RootYawOffset;
 	
 
 
