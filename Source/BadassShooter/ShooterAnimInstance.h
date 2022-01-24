@@ -25,7 +25,7 @@ public:
 	void UpdateAnimationProperties(float DeltaTime);
 
 protected:
-	void SetAimOffsetValues();
+
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
@@ -46,14 +46,12 @@ private:
 	/* Offset Yaw used for strafing */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float MovementOffsetYaw;
-	
-	/* Used for the aim offset */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Aiming, meta = (AllowPrivateAccess = "true"))
-	float AimingPitch;
 
-	/* Used to keep the values when not moving */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Aiming, meta = (AllowPrivateAccess = "true"))
-	float AimingYaw;
+	/* Offset Yaw used for strafing right before movement stops so we can play the correct stopping animation  */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float MovementOffsetYawLastFrame;
+	
+
 
 	
 

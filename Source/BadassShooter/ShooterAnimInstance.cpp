@@ -11,9 +11,10 @@ UShooterAnimInstance::UShooterAnimInstance() :
 	bIsInAir(false),
 	bIsMoving(false),
 	bIsAiming(false),
-	AimingPitch(0.f),
-	AimingYaw(0.f)
+	MovementOffsetYaw(0.f),
+	MovementOffsetYawLastFrame(0.f)
 {}
+
 void UShooterAnimInstance::NativeInitializeAnimation()
 {
 	ShooterCharacter = Cast<AShooterCharacter>(TryGetPawnOwner());
@@ -52,17 +53,16 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		FRotator AimRotation = ShooterCharacter->GetBaseAimRotation();
 		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(ShooterCharacter->GetVelocity());
 		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;;
+
+		if (ShooterCharacter->GetVelocity().Size() > 0)
+		{
+			MovementOffsetYawLastFrame = MovementOffsetYaw;
+		}
 	}
 
-	SetAimOffsetValues();
+	
+
+
 }
 
-void UShooterAnimInstance::SetAimOffsetValues()
-{
-	if (ShooterCharacter == nullptr) return;
 
-	FRotator AimingRotation = UKismetMathLibrary::NormalizedDeltaRotator(ShooterCharacter->GetBaseAimRotation(), ShooterCharacter->GetActorRotation());
-	AimingPitch = AimingRotation.Pitch;
-	AimingYaw = AimingRotation.Yaw;
-		
-}
