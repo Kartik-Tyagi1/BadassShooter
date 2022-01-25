@@ -25,7 +25,7 @@ public:
 	void UpdateAnimationProperties(float DeltaTime);
 
 protected:
-
+	void TurnInPlace();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
@@ -50,12 +50,18 @@ private:
 	/* Offset Yaw used for strafing right before movement stops so we can play the correct stopping animation  */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float MovementOffsetYawLastFrame;
+
+	float CharacterYaw;
+
+	float CharacterYawLastFrame;
+
+	/* 
+	* This is the negative of the delta between the CharacterYaw and CharacterYawLastFrame to reorient the root bone when rotating the camera 
+	* so that the character does not move with the camera until the turn in place animation plays 
+	*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float RootYawOffset;
 	
-
-
-	
-
-
 
 
 };

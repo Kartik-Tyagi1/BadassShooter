@@ -12,7 +12,10 @@ UShooterAnimInstance::UShooterAnimInstance() :
 	bIsMoving(false),
 	bIsAiming(false),
 	MovementOffsetYaw(0.f),
-	MovementOffsetYawLastFrame(0.f)
+	MovementOffsetYawLastFrame(0.f),
+	CharacterYaw(0.f),
+	CharacterYawLastFrame(0.f),
+	RootYawOffset(0.f)
 {}
 
 void UShooterAnimInstance::NativeInitializeAnimation()
@@ -60,9 +63,26 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		}
 	}
 
-	
+	TurnInPlace();
 
+}
 
+void UShooterAnimInstance::TurnInPlace()
+{
+	if (ShooterCharacter == nullptr) return;
+	if (CharacterSpeed > 0 || bIsAiming)
+	{
+		// Do not do any calcuations if character is moving or aiming.
+		// We do not want to turn in place under these conditions
+	}
+	else
+	{
+		CharacterYawLastFrame = CharacterYaw;
+		CharacterYaw = ShooterCharacter->GetActorRotation().Yaw;
+		const float YawDelta{ CharacterYaw - CharacterYawLastFrame };
+
+		RootYawOffset -= YawDelta; // Negative of Character Yaw (Description in .h file)
+	}
 }
 
 
