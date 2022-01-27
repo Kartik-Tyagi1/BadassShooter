@@ -328,4 +328,6 @@ public:
 
 	/* Determine what type of item is the pickup item and call the corresponding interact function (SwapWeapon, etc.)*/
 	void GetPickupItem(AItem* Item);
+
+	FORCEINLINE ECombatState GetCombatState() const { return CombatState; }
 };

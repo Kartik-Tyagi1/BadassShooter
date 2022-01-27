@@ -91,5 +91,7 @@ public:
 	void UpdateAmmo(int32 Amount);
 	FORCEINLINE void SetIsMagMoving(bool Moving) { bIsMagMoving = Moving; }
 
+	bool ClipIsFull();
+
 	
 };

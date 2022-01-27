@@ -15,7 +15,12 @@ UShooterAnimInstance::UShooterAnimInstance() :
 	MovementOffsetYawLastFrame(0.f),
 	CharacterYaw(0.f),
 	CharacterYawLastFrame(0.f),
-	RootYawOffset(0.f)
+	RootYawOffset(0.f),
+	RotationCurve(0.f),
+	RotationCurveLastFrame(0.f),
+	AimingPitch(0.f),
+	bIsReloading(false),
+	OffsetState(EOffsetState::EOS_NonCombat)
 {}
 
 void UShooterAnimInstance::NativeInitializeAnimation()
@@ -31,6 +36,9 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 	}
 	if (ShooterCharacter)
 	{
+		// Determine if reloading
+		bIsReloading = ShooterCharacter->GetCombatState() == ECombatState::ECS_Reloading;
+
 		// Determine MovementSpeed 
 		FVector Velocity = ShooterCharacter->GetCharacterMovement()->Velocity;
 		Velocity.Z = 0;
@@ -61,6 +69,23 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		{
 			MovementOffsetYawLastFrame = MovementOffsetYaw;
 		}
+
+		if (bIsReloading)
+		{
+			OffsetState = EOffsetState::EOS_Reloading;
+		}
+		else if(bIsInAir)
+		{
+			OffsetState = EOffsetState::EOS_Air;
+		}
+		else if (bIsAiming)
+		{
+			OffsetState = EOffsetState::EOS_Combat;
+		}
+		else
+		{
+			OffsetState = EOffsetState::EOS_NonCombat;
+		}
 	}
 
 	TurnInPlace();
@@ -70,10 +95,18 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 void UShooterAnimInstance::TurnInPlace()
 {
 	if (ShooterCharacter == nullptr) return;
-	if (CharacterSpeed > 0 || bIsAiming)
+
+	AimingPitch = ShooterCharacter->GetBaseAimRotation().Pitch;
+
+	if (CharacterSpeed > 0 || bIsInAir)
 	{
-		// Do not do any calcuations if character is moving or aiming.
+		// Do not do any calcuations if character is moving or jumping.
 		// We do not want to turn in place under these conditions
+		RootYawOffset = 0.f;
+		CharacterYaw = ShooterCharacter->GetActorRotation().Yaw;
+		CharacterYawLastFrame = CharacterYaw;
+		RotationCurveLastFrame = 0.f;
+		RotationCurve = 0.f;
 	}
 	else
 	{
@@ -81,7 +114,26 @@ void UShooterAnimInstance::TurnInPlace()
 		CharacterYaw = ShooterCharacter->GetActorRotation().Yaw;
 		const float YawDelta{ CharacterYaw - CharacterYawLastFrame };
 
-		RootYawOffset -= YawDelta; // Negative of Character Yaw (Description in .h file)
+		RootYawOffset = UKismetMathLibrary::NormalizeAxis(RootYawOffset - YawDelta); // Negative of Character Yaw (Description in .h file)
+
+		const float Turning{ GetCurveValue(TEXT("Turning")) };
+		if (Turning > 0)
+		{
+			RotationCurveLastFrame = RotationCurve;
+			RotationCurve = GetCurveValue(TEXT("Rotation"));
+			const float DeltaRotation{ RotationCurve - RotationCurveLastFrame };
+
+			/* RootYawOffset > 0 : LEFT TURN       RootYawOffset < 0 : RIGHT TURN */
+			/* Once the turn in place animation triggers we need to use the delta of the curve values to orient the root bone to point in the direction of the turn */
+			RootYawOffset > 0 ? RootYawOffset -= DeltaRotation : RootYawOffset += DeltaRotation;
+
+			const float ABSRootYawOffset{ FMath::Abs(RootYawOffset) };
+			if (ABSRootYawOffset > 90.f)
+			{
+				const float YawExcess{ ABSRootYawOffset - 90.f };
+				RootYawOffset > 0 ? RootYawOffset -= YawExcess : RootYawOffset += YawExcess;
+			}
+		}
 	}
 }
 

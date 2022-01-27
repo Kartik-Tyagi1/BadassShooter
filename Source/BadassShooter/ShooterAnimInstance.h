@@ -9,6 +9,17 @@
 /**
  * 
  */
+UENUM(BlueprintType)
+enum class EOffsetState : uint8
+{
+	EOS_NonCombat	UMETA(DisplayName = "Non Combat"),
+	EOS_Combat		UMETA(DisplayName = "Combat"),
+	EOS_Reloading	UMETA(DisplayName = "Reloading"),
+	EOS_Air			UMETA(DisplayName = "In Air"),
+
+	EOS_MAX			UMETA(DisplayName = "DefaultMAX")
+};
+
 UCLASS()
 class BADASSSHOOTER_API UShooterAnimInstance : public UAnimInstance
 {
@@ -59,9 +70,25 @@ private:
 	* This is the negative of the delta between the CharacterYaw and CharacterYawLastFrame to reorient the root bone when rotating the camera 
 	* so that the character does not move with the camera until the turn in place animation plays 
 	*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
 	float RootYawOffset;
+
+
+	float RotationCurve;
+
+	float RotationCurveLastFrame;
+
+	/* Aiming Pitch for aim offset */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
+	float AimingPitch;
+
+	/* True when reloading to prevent aim offset bullshit when reloading */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
+	bool bIsReloading;
 	
+	/* Offset State determines what aim offset to use in animation */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
+	EOffsetState OffsetState;
 
 
 };
