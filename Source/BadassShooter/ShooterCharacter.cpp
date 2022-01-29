@@ -43,6 +43,7 @@ AShooterCharacter::AShooterCharacter() :
 	CombatState(ECombatState::ECS_Unoccupied),
 	bFireButtonPressed(false),
 	AutomaticFireDuration(0.1f),
+	bIsInCombatPose(false),
 	// Item trace variables
 	bShouldTraceForItems(false),
 	OverlappedItemCount(0),
@@ -147,6 +148,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("InteractButton", IE_Released, this, &AShooterCharacter::InteractButtonReleased);
 
 	PlayerInputComponent->BindAction("ReloadButton", IE_Pressed, this, &AShooterCharacter::ReloadButtonPressed);
+
+	PlayerInputComponent->BindAction("SwitchCombatButton", IE_Pressed, this, &AShooterCharacter::SwitchCombatButtonPressed);
 
 }
 
@@ -362,7 +365,7 @@ void AShooterCharacter::FireWeapon()
 	if (EquippedWeapon == nullptr) return;
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
 
-	if (WeaponHasAmmo())
+	if (WeaponHasAmmo() && (bIsInCombatPose))
 	{
 		PlayFireSound();
 		SendBullet();
@@ -711,6 +714,11 @@ bool AShooterCharacter::CarryingAmmo()
 		return AmmoMap[AmmoType] > 0;
 	}
 	return false;
+}
+
+void AShooterCharacter::SwitchCombatButtonPressed()
+{
+	bIsInCombatPose = !bIsInCombatPose;
 }
 
 void AShooterCharacter::GrabMagazine()

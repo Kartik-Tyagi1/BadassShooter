@@ -123,6 +123,9 @@ protected:
 	void ReloadWeapon();
 	bool CarryingAmmo();
 
+	void SwitchCombatButtonPressed();
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -253,6 +256,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* ReloadMontage;
 
+	/* Switch between combat and noncombat poses */
+	bool bIsInCombatPose;
+
 	/*--------------------------------- THE WEAPON AND TRACING FOR ITEMS --------------------------------------------------------*/
 
 	/* Currently Equipped Weapon */
@@ -330,4 +336,7 @@ public:
 	void GetPickupItem(AItem* Item);
 
 	FORCEINLINE ECombatState GetCombatState() const { return CombatState; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool GetIsInCombatPose() const { return bIsInCombatPose; }
 };

@@ -37,6 +37,7 @@ public:
 
 protected:
 	void TurnInPlace();
+	void Lean(float DeltaTime);
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
@@ -53,6 +54,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	bool bIsAiming;
+
+	/* Switch between combat and noncombat poses */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	bool bIsInCombatPose;
 	
 	/* Offset Yaw used for strafing */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
@@ -62,9 +67,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float MovementOffsetYawLastFrame;
 
-	float CharacterYaw;
-
-	float CharacterYawLastFrame;
+	/* Character Yaws used for Turn In Place Animations */
+	float TIPCharacterYaw;
+	float TIPCharacterYawLastFrame;
 
 	/* 
 	* This is the negative of the delta between the CharacterYaw and CharacterYawLastFrame to reorient the root bone when rotating the camera 
@@ -89,6 +94,16 @@ private:
 	/* Offset State determines what aim offset to use in animation */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
 	EOffsetState OffsetState;
+
+	/* Character Yaws used for Lean Animations */
+	FRotator CharacterLean;
+	FRotator CharacterLeanLastFrame;
+
+	/* Delta for Leaning Animations */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Lean, meta = (AllowPrivateAccess = "true"))
+	float LeanYawDelta;
+
+
 
 
 };
