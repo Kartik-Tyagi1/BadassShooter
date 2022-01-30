@@ -58,7 +58,15 @@ private:
 	/* Switch between combat and noncombat poses */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	bool bIsInCombatPose;
-	
+
+	/* True when crouching */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	bool bIsCrouching;
+
+	/* True when reloading to prevent aim offset bullshit when reloading */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
+	bool bIsReloading;
+
 	/* Offset Yaw used for strafing */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float MovementOffsetYaw;
@@ -78,18 +86,14 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
 	float RootYawOffset;
 
-
+	/* Rotation curve values for turn in place */
 	float RotationCurve;
-
 	float RotationCurveLastFrame;
 
 	/* Aiming Pitch for aim offset */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
 	float AimingPitch;
 
-	/* True when reloading to prevent aim offset bullshit when reloading */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
-	bool bIsReloading;
 	
 	/* Offset State determines what aim offset to use in animation */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
@@ -102,8 +106,6 @@ private:
 	/* Delta for Leaning Animations */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Lean, meta = (AllowPrivateAccess = "true"))
 	float LeanYawDelta;
-
-
 
 
 };

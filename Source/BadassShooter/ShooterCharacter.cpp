@@ -52,7 +52,9 @@ AShooterCharacter::AShooterCharacter() :
 	CameraInterpElevation(65.f),
 	// Intial ammo amounts
 	StartingPistolAmmo(75),
-	StartingARAmmo(120)
+	StartingARAmmo(120),
+	// Crouching
+	bIsCrouching(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -150,6 +152,9 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("ReloadButton", IE_Pressed, this, &AShooterCharacter::ReloadButtonPressed);
 
 	PlayerInputComponent->BindAction("SwitchCombatButton", IE_Pressed, this, &AShooterCharacter::SwitchCombatButtonPressed);
+
+	PlayerInputComponent->BindAction("CrouchButton", IE_Pressed, this, &AShooterCharacter::SwitchCombatButtonPressed);
+
 
 }
 
@@ -716,11 +721,6 @@ bool AShooterCharacter::CarryingAmmo()
 	return false;
 }
 
-void AShooterCharacter::SwitchCombatButtonPressed()
-{
-	bIsInCombatPose = !bIsInCombatPose;
-}
-
 void AShooterCharacter::GrabMagazine()
 {
 	if (EquippedWeapon == nullptr) return;
@@ -744,5 +744,18 @@ void AShooterCharacter::GrabMagazine()
 void AShooterCharacter::ReplaceMagazine()
 {
 	EquippedWeapon->SetIsMagMoving(false);
+}
+
+void AShooterCharacter::SwitchCombatButtonPressed()
+{
+	bIsInCombatPose = !bIsInCombatPose;
+}
+
+void AShooterCharacter::CrouchButtonPressed()
+{
+	if (!GetCharacterMovement()->IsFalling())
+	{
+		bIsCrouching = !bIsCrouching;
+	}
 }
 

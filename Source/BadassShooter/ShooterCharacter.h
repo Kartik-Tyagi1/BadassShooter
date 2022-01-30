@@ -119,11 +119,16 @@ protected:
 	UFUNCTION(BlueprintCallable) // Called from blueprint (reload montage anim notify)
 	void ReplaceMagazine();
 
+	/* Function for weapon reloading and ammo checking*/
 	void ReloadButtonPressed();
 	void ReloadWeapon();
 	bool CarryingAmmo();
 
+	/* Function to chnage from noncombat to combat poses */
 	void SwitchCombatButtonPressed();
+
+	/* Function to toggle between crouch and standing */
+	void CrouchButtonPressed();
 
 
 public:	
@@ -315,6 +320,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	USceneComponent* HandSceneComponent;
 
+	/*------------------------------------------------- CROUCHING VARIABLES -------------------------------------------------------------*/
+
+	/* True when crouching */
+	bool bIsCrouching;
 
 
 public:
@@ -338,5 +347,7 @@ public:
 	FORCEINLINE ECombatState GetCombatState() const { return CombatState; }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool GetIsInCombatPose() const { return bIsInCombatPose; }
+	FORCEINLINE bool GetIsInCombatPose() const { return bIsInCombatPose; } // Blueprint callable because it is used in crosshair HUD
+
+	FORCEINLINE bool GetIsCrouching() const { return bIsCrouching; }
 };

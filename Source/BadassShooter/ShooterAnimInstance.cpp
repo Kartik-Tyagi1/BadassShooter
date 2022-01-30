@@ -7,20 +7,25 @@
 
 
 UShooterAnimInstance::UShooterAnimInstance() :
+	// Character Movement Variables
 	CharacterSpeed(0.f),
 	bIsInAir(false),
 	bIsMoving(false),
 	bIsAiming(false),
 	bIsInCombatPose(false),
+	bIsCrouching(false),
+	bIsReloading(false),
+	// Movement Offset Yaw Variables
 	MovementOffsetYaw(0.f),
 	MovementOffsetYawLastFrame(0.f),
+	// Turn in Place Variables and Aim Offset
 	TIPCharacterYaw(0.f),
 	TIPCharacterYawLastFrame(0.f),
 	RootYawOffset(0.f),
 	RotationCurve(0.f),
 	RotationCurveLastFrame(0.f),
 	AimingPitch(0.f),
-	bIsReloading(false),
+	// Character State and Leaning
 	OffsetState(EOffsetState::EOS_NonCombat),
 	CharacterLean(FRotator(0.f)),
 	CharacterLeanLastFrame(FRotator(0.f)),
@@ -40,6 +45,8 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 	}
 	if (ShooterCharacter)
 	{
+		bIsCrouching = ShooterCharacter->GetIsCrouching();
+
 		// Determine if reloading
 		bIsReloading = ShooterCharacter->GetCombatState() == ECombatState::ECS_Reloading;
 
