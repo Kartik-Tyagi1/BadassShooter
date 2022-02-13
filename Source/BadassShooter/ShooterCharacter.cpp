@@ -153,7 +153,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAction("SwitchCombatButton", IE_Pressed, this, &AShooterCharacter::SwitchCombatButtonPressed);
 
-	PlayerInputComponent->BindAction("CrouchButton", IE_Pressed, this, &AShooterCharacter::SwitchCombatButtonPressed);
+	PlayerInputComponent->BindAction("CrouchButton", IE_Pressed, this, &AShooterCharacter::CrouchButtonPressed);
 
 
 }
@@ -756,6 +756,7 @@ void AShooterCharacter::CrouchButtonPressed()
 	if (!GetCharacterMovement()->IsFalling())
 	{
 		bIsCrouching = !bIsCrouching;
+		bIsInCombatPose = true;
 	}
 }
 
