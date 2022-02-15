@@ -29,7 +29,10 @@ UShooterAnimInstance::UShooterAnimInstance() :
 	OffsetState(EOffsetState::EOS_NonCombat),
 	CharacterLean(FRotator(0.f)),
 	CharacterLeanLastFrame(FRotator(0.f)),
-	LeanYawDelta(0.f)
+	LeanYawDelta(0.f),
+	// Recoil Variables
+	RecoilWeight(0.f),
+	bIsTurning(false)
 {}
 
 void UShooterAnimInstance::NativeInitializeAnimation()
@@ -133,6 +136,7 @@ void UShooterAnimInstance::TurnInPlace()
 		const float Turning{ GetCurveValue(TEXT("Turning")) };
 		if (Turning > 0)
 		{
+			bIsTurning = true;
 			RotationCurveLastFrame = RotationCurve;
 			RotationCurve = GetCurveValue(TEXT("Rotation"));
 			const float DeltaRotation{ RotationCurve - RotationCurveLastFrame };
@@ -148,7 +152,51 @@ void UShooterAnimInstance::TurnInPlace()
 				RootYawOffset > 0 ? RootYawOffset -= YawExcess : RootYawOffset += YawExcess;
 			}
 		}
+		else
+		{
+			bIsTurning = false;
+		}
 	}
+
+	// Determine Recoil Weight
+	if (bIsTurning)
+	{
+		if (bIsReloading)
+		{
+			RecoilWeight = 1.f;
+		}
+		else
+		{
+			RecoilWeight = 0.2;
+		}
+	}
+	else
+	{
+		if (bIsCrouching)
+		{
+			if (bIsReloading)
+			{
+				RecoilWeight = 1.f;
+			}
+			else
+			{
+				RecoilWeight = 0.2f;
+			}
+		}
+		else
+		{
+			if (bIsReloading)
+			{
+				RecoilWeight = 1.f;
+			}
+			else
+			{
+				RecoilWeight = 0.2f;
+			}
+		}
+	}
+	
+	
 }
 
 void UShooterAnimInstance::Lean(float DeltaTime)

@@ -54,7 +54,11 @@ AShooterCharacter::AShooterCharacter() :
 	StartingPistolAmmo(75),
 	StartingARAmmo(120),
 	// Crouching
-	bIsCrouching(false)
+	bIsCrouching(false),
+	// Movement Speeds
+	NonCombatSpeed(600.f),
+	CombatSpeed(500.f),
+	CrouchingSpeed(300.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -108,6 +112,9 @@ void AShooterCharacter::BeginPlay()
 	// Set up the ammo map with the starting ammo values
 	InitalizeAmmoMap();
 
+	// Set Character Speed
+	GetCharacterMovement()->MaxWalkSpeed = NonCombatSpeed;
+
 }
 
 
@@ -137,7 +144,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("MouseLookUp", this, &AShooterCharacter::LookUp);
 
 	// Action Mapping
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AShooterCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireButtonPressed);
@@ -749,6 +756,14 @@ void AShooterCharacter::ReplaceMagazine()
 void AShooterCharacter::SwitchCombatButtonPressed()
 {
 	bIsInCombatPose = !bIsInCombatPose;
+	if (bIsInCombatPose)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = CombatSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = NonCombatSpeed;
+	}
 }
 
 void AShooterCharacter::CrouchButtonPressed()
@@ -757,6 +772,27 @@ void AShooterCharacter::CrouchButtonPressed()
 	{
 		bIsCrouching = !bIsCrouching;
 		bIsInCombatPose = true;
+	}
+	if (bIsCrouching)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = CrouchingSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = CombatSpeed;
+	}
+}
+
+void AShooterCharacter::Jump()
+{
+	if (bIsCrouching)
+	{
+		bIsCrouching = false;
+		GetCharacterMovement()->MaxWalkSpeed = CombatSpeed;
+	}
+	else
+	{
+		ACharacter::Jump();
 	}
 }
 

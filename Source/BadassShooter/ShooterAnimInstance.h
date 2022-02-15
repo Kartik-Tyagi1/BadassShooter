@@ -107,5 +107,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Lean, meta = (AllowPrivateAccess = "true"))
 	float LeanYawDelta;
 
+	/* Recoil weight when firing weapon. Higher values mean that the recoil will be more and the reload animation will play properly) */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float RecoilWeight;
+
+	/* Boolean to determine if the character is turning */
+	bool bIsTurning;
 
 };

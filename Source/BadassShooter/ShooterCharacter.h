@@ -130,6 +130,9 @@ protected:
 	/* Function to toggle between crouch and standing */
 	void CrouchButtonPressed();
 
+	/* Function to add own functionality to jump */
+	virtual void Jump() override;
+
 
 public:	
 	// Called every frame
@@ -324,6 +327,17 @@ private:
 
 	/* True when crouching */
 	bool bIsCrouching;
+
+	/*---------------------------------------------------- MOVEMENT SPEEDS -------------------------------------------------------------*/
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float NonCombatSpeed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float CombatSpeed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float CrouchingSpeed;
 
 
 public:
