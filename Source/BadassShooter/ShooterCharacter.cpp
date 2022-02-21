@@ -12,6 +12,7 @@
 #include "Components/WidgetComponent.h"
 #include "Components/SphereComponent.h"
 #include "Weapon.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
@@ -58,7 +59,13 @@ AShooterCharacter::AShooterCharacter() :
 	// Movement Speeds
 	NonCombatSpeed(600.f),
 	CombatSpeed(500.f),
-	CrouchingSpeed(300.f)
+	CrouchingSpeed(300.f),
+	// Capsule half heights
+	StandingCapsuleHalfHeight(88.f),
+	CrouchingCapsuleHalfHeight(44.f),
+	// Ground Friction
+	BaseGroundFriction(2.f),
+	CrouchingGroundFriction(100.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -126,6 +133,7 @@ void AShooterCharacter::Tick(float DeltaTime)
 	SetLookRates();
 	CrosshairSpread(DeltaTime);
 	TraceForItems();
+	InterpCapsuleHalfHeight(DeltaTime);
 
 }
 
@@ -755,14 +763,17 @@ void AShooterCharacter::ReplaceMagazine()
 
 void AShooterCharacter::SwitchCombatButtonPressed()
 {
-	bIsInCombatPose = !bIsInCombatPose;
-	if (bIsInCombatPose)
+	if (!bIsCrouching)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = CombatSpeed;
-	}
-	else
-	{
-		GetCharacterMovement()->MaxWalkSpeed = NonCombatSpeed;
+		bIsInCombatPose = !bIsInCombatPose;
+		if (bIsInCombatPose)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = CombatSpeed;
+		}
+		else
+		{
+			GetCharacterMovement()->MaxWalkSpeed = NonCombatSpeed;
+		}
 	}
 }
 
@@ -776,10 +787,12 @@ void AShooterCharacter::CrouchButtonPressed()
 	if (bIsCrouching)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = CrouchingSpeed;
+		GetCharacterMovement()->GroundFriction = CrouchingGroundFriction;
 	}
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = CombatSpeed;
+		GetCharacterMovement()->GroundFriction = BaseGroundFriction;
 	}
 }
 
@@ -789,10 +802,34 @@ void AShooterCharacter::Jump()
 	{
 		bIsCrouching = false;
 		GetCharacterMovement()->MaxWalkSpeed = CombatSpeed;
+		GetCharacterMovement()->GroundFriction = BaseGroundFriction;
 	}
 	else
 	{
 		ACharacter::Jump();
 	}
+}
+
+void AShooterCharacter::InterpCapsuleHalfHeight(float DeltaTime)
+{
+	float TargetCapsuleHalfHeight{};
+	if (bIsCrouching)
+	{
+		TargetCapsuleHalfHeight = CrouchingCapsuleHalfHeight;
+	}
+	else
+	{
+		TargetCapsuleHalfHeight = StandingCapsuleHalfHeight;
+	}
+
+	const float InterpHalfHeight{ FMath::FInterpTo(GetCapsuleComponent()->GetScaledCapsuleHalfHeight(), TargetCapsuleHalfHeight, DeltaTime, 15.f ) };
+
+	// The mesh will dip into the floor when crouching so we need to set an offset so we can move the character out of the floor
+	// Negative when crouching, Positive when standing 
+	const float DeltaHalfHeight{ InterpHalfHeight - GetCapsuleComponent()->GetScaledCapsuleHalfHeight() };
+	const FVector MeshOffset{ 0.f, 0.f, -DeltaHalfHeight };
+	GetMesh()->AddLocalOffset(MeshOffset);
+
+	GetCapsuleComponent()->SetCapsuleHalfHeight(InterpHalfHeight);
 }
 

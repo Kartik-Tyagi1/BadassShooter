@@ -133,6 +133,9 @@ protected:
 	/* Function to add own functionality to jump */
 	virtual void Jump() override;
 
+	/* Function for Capsult Half Height Interpolation */
+	void InterpCapsuleHalfHeight(float DeltaTime);
+
 
 public:	
 	// Called every frame
@@ -323,21 +326,33 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	USceneComponent* HandSceneComponent;
 
-	/*------------------------------------------------- CROUCHING VARIABLES -------------------------------------------------------------*/
+	/*------------------------------------------------- CROUCHING / MOVEMENT VARIABLES -------------------------------------------------------------*/
 
 	/* True when crouching */
 	bool bIsCrouching;
-
-	/*---------------------------------------------------- MOVEMENT SPEEDS -------------------------------------------------------------*/
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float NonCombatSpeed;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float CombatSpeed;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float CrouchingSpeed;
+
+	/* Variables to interpolate capsule height when crouching */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float StandingCapsuleHalfHeight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float CrouchingCapsuleHalfHeight;
+
+	/* Change ground friction when crouching so there is not skid effect */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float BaseGroundFriction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float CrouchingGroundFriction;
 
 
 public:
