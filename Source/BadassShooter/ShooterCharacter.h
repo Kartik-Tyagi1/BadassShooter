@@ -52,6 +52,8 @@ protected:
 	/* Functions for aiming the weapon */
 	void AimingButtonPressed();
 	void AimingButtonReleased();
+	void Aim();
+	void StopAiming();
 
 	/* Set Camera FOV */
 	void SetCameraFOV(float DeltaTime);
@@ -269,6 +271,8 @@ private:
 
 	/* Switch between combat and noncombat poses */
 	bool bIsInCombatPose;
+
+	bool bAimingButtonPressed;
 
 	/*--------------------------------- THE WEAPON AND TRACING FOR ITEMS --------------------------------------------------------*/
 

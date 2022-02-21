@@ -45,6 +45,7 @@ AShooterCharacter::AShooterCharacter() :
 	bFireButtonPressed(false),
 	AutomaticFireDuration(0.1f),
 	bIsInCombatPose(false),
+	bAimingButtonPressed(false),
 	// Item trace variables
 	bShouldTraceForItems(false),
 	OverlappedItemCount(0),
@@ -337,10 +338,26 @@ void AShooterCharacter::EndCrosshairShootTimer()
 
 void AShooterCharacter::AimingButtonPressed()
 {
-	bIsAiming = true;
+	bAimingButtonPressed = true;
+	if (CombatState != ECombatState::ECS_Reloading)
+	{
+		Aim();
+	}
+
 }
 
 void AShooterCharacter::AimingButtonReleased()
+{
+	bAimingButtonPressed = false;
+	StopAiming();
+}
+
+void AShooterCharacter::Aim()
+{
+	bIsAiming = true;
+}
+
+void AShooterCharacter::StopAiming()
 {
 	bIsAiming = false;
 }
@@ -683,6 +700,11 @@ void AShooterCharacter::ReloadWeapon()
 
 	if (CarryingAmmo() && !EquippedWeapon->ClipIsFull())
 	{
+		if (bIsAiming) // Stop Aiming when reloading and when finished reloading the aim will go back
+		{
+			StopAiming();
+		}
+
 		CombatState = ECombatState::ECS_Reloading;
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
@@ -699,6 +721,11 @@ void AShooterCharacter::FinishReloading()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
 	if (EquippedWeapon == nullptr) return;
+
+	if (bAimingButtonPressed)
+	{
+		Aim();
+	}
 
 	// Update the ammo map with the reloaded ammo
 	const auto AmmoType = EquippedWeapon->GetAmmoType();
