@@ -52,6 +52,8 @@ protected:
 	/* Functions for aiming the weapon */
 	void AimingButtonPressed();
 	void AimingButtonReleased();
+	void Aim();
+	void StopAiming();
 
 	/* Set Camera FOV */
 	void SetCameraFOV(float DeltaTime);
@@ -119,9 +121,23 @@ protected:
 	UFUNCTION(BlueprintCallable) // Called from blueprint (reload montage anim notify)
 	void ReplaceMagazine();
 
+	/* Function for weapon reloading and ammo checking*/
 	void ReloadButtonPressed();
 	void ReloadWeapon();
 	bool CarryingAmmo();
+
+	/* Function to chnage from noncombat to combat poses */
+	void SwitchCombatButtonPressed();
+
+	/* Function to toggle between crouch and standing */
+	void CrouchButtonPressed();
+
+	/* Function to add own functionality to jump */
+	virtual void Jump() override;
+
+	/* Function for Capsult Half Height Interpolation */
+	void InterpCapsuleHalfHeight(float DeltaTime);
+
 
 public:	
 	// Called every frame
@@ -253,6 +269,11 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* ReloadMontage;
 
+	/* Switch between combat and noncombat poses */
+	bool bIsInCombatPose;
+
+	bool bAimingButtonPressed;
+
 	/*--------------------------------- THE WEAPON AND TRACING FOR ITEMS --------------------------------------------------------*/
 
 	/* Currently Equipped Weapon */
@@ -309,6 +330,33 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	USceneComponent* HandSceneComponent;
 
+	/*------------------------------------------------- CROUCHING / MOVEMENT VARIABLES -------------------------------------------------------------*/
+
+	/* True when crouching */
+	bool bIsCrouching;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float NonCombatSpeed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float CombatSpeed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float CrouchingSpeed;
+
+	/* Variables to interpolate capsule height when crouching */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float StandingCapsuleHalfHeight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float CrouchingCapsuleHalfHeight;
+
+	/* Change ground friction when crouching so there is not skid effect */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float BaseGroundFriction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float CrouchingGroundFriction;
 
 
 public:
@@ -328,4 +376,11 @@ public:
 
 	/* Determine what type of item is the pickup item and call the corresponding interact function (SwapWeapon, etc.)*/
 	void GetPickupItem(AItem* Item);
+
+	FORCEINLINE ECombatState GetCombatState() const { return CombatState; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool GetIsInCombatPose() const { return bIsInCombatPose; } // Blueprint callable because it is used in crosshair HUD
+
+	FORCEINLINE bool GetIsCrouching() const { return bIsCrouching; }
 };
