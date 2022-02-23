@@ -84,3 +84,8 @@ void AWeapon::UpdateAmmo(int32 Amount)
 
 }
 
+bool AWeapon::ClipIsFull()
+{
+	return AmmoInMagazine >= MaximumMagazineCapacity;
+}
+

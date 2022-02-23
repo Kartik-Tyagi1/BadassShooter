@@ -12,6 +12,7 @@
 #include "Components/WidgetComponent.h"
 #include "Components/SphereComponent.h"
 #include "Weapon.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
@@ -43,6 +44,8 @@ AShooterCharacter::AShooterCharacter() :
 	CombatState(ECombatState::ECS_Unoccupied),
 	bFireButtonPressed(false),
 	AutomaticFireDuration(0.1f),
+	bIsInCombatPose(false),
+	bAimingButtonPressed(false),
 	// Item trace variables
 	bShouldTraceForItems(false),
 	OverlappedItemCount(0),
@@ -51,7 +54,19 @@ AShooterCharacter::AShooterCharacter() :
 	CameraInterpElevation(65.f),
 	// Intial ammo amounts
 	StartingPistolAmmo(75),
-	StartingARAmmo(120)
+	StartingARAmmo(120),
+	// Crouching
+	bIsCrouching(false),
+	// Movement Speeds
+	NonCombatSpeed(600.f),
+	CombatSpeed(500.f),
+	CrouchingSpeed(300.f),
+	// Capsule half heights
+	StandingCapsuleHalfHeight(88.f),
+	CrouchingCapsuleHalfHeight(44.f),
+	// Ground Friction
+	BaseGroundFriction(2.f),
+	CrouchingGroundFriction(100.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -71,9 +86,9 @@ AShooterCharacter::AShooterCharacter() :
 	// Do not rotate character with camera
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character will move in camera direction and rotate ...
+	GetCharacterMovement()->bOrientRotationToMovement = false; // Character will move in camera direction and rotate ...
 	GetCharacterMovement()->RotationRate = FRotator{ 0.f, 600.f, 0.f }; // At this rate
 	GetCharacterMovement()->JumpZVelocity = 300.f;
 	GetCharacterMovement()->AirControl = 0.2f;
@@ -105,6 +120,9 @@ void AShooterCharacter::BeginPlay()
 	// Set up the ammo map with the starting ammo values
 	InitalizeAmmoMap();
 
+	// Set Character Speed
+	GetCharacterMovement()->MaxWalkSpeed = NonCombatSpeed;
+
 }
 
 
@@ -116,6 +134,7 @@ void AShooterCharacter::Tick(float DeltaTime)
 	SetLookRates();
 	CrosshairSpread(DeltaTime);
 	TraceForItems();
+	InterpCapsuleHalfHeight(DeltaTime);
 
 }
 
@@ -134,7 +153,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("MouseLookUp", this, &AShooterCharacter::LookUp);
 
 	// Action Mapping
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AShooterCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireButtonPressed);
@@ -147,6 +166,11 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("InteractButton", IE_Released, this, &AShooterCharacter::InteractButtonReleased);
 
 	PlayerInputComponent->BindAction("ReloadButton", IE_Pressed, this, &AShooterCharacter::ReloadButtonPressed);
+
+	PlayerInputComponent->BindAction("SwitchCombatButton", IE_Pressed, this, &AShooterCharacter::SwitchCombatButtonPressed);
+
+	PlayerInputComponent->BindAction("CrouchButton", IE_Pressed, this, &AShooterCharacter::CrouchButtonPressed);
+
 
 }
 
@@ -314,26 +338,28 @@ void AShooterCharacter::EndCrosshairShootTimer()
 
 void AShooterCharacter::AimingButtonPressed()
 {
-	bIsAiming = true;
-
-	// Do not rotate character with camera when aiming
-	bUseControllerRotationRoll = true;
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = true;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
+	bAimingButtonPressed = true;
+	if (CombatState != ECombatState::ECS_Reloading)
+	{
+		Aim();
+	}
 
 }
 
 void AShooterCharacter::AimingButtonReleased()
 {
+	bAimingButtonPressed = false;
+	StopAiming();
+}
+
+void AShooterCharacter::Aim()
+{
+	bIsAiming = true;
+}
+
+void AShooterCharacter::StopAiming()
+{
 	bIsAiming = false;
-
-	// Go back to defaults when back to normal
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-
 }
 
 
@@ -376,7 +402,7 @@ void AShooterCharacter::FireWeapon()
 	if (EquippedWeapon == nullptr) return;
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
 
-	if (WeaponHasAmmo())
+	if (WeaponHasAmmo() && (bIsInCombatPose))
 	{
 		PlayFireSound();
 		SendBullet();
@@ -670,9 +696,15 @@ void AShooterCharacter::ReloadButtonPressed()
 void AShooterCharacter::ReloadWeapon()
 {
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
+	if (EquippedWeapon == nullptr) return;
 
-	if (CarryingAmmo())
+	if (CarryingAmmo() && !EquippedWeapon->ClipIsFull())
 	{
+		if (bIsAiming) // Stop Aiming when reloading and when finished reloading the aim will go back
+		{
+			StopAiming();
+		}
+
 		CombatState = ECombatState::ECS_Reloading;
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
@@ -689,6 +721,11 @@ void AShooterCharacter::FinishReloading()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
 	if (EquippedWeapon == nullptr) return;
+
+	if (bAimingButtonPressed)
+	{
+		Aim();
+	}
 
 	// Update the ammo map with the reloaded ammo
 	const auto AmmoType = EquippedWeapon->GetAmmoType();
@@ -749,5 +786,77 @@ void AShooterCharacter::GrabMagazine()
 void AShooterCharacter::ReplaceMagazine()
 {
 	EquippedWeapon->SetIsMagMoving(false);
+}
+
+void AShooterCharacter::SwitchCombatButtonPressed()
+{
+	if (!bIsCrouching)
+	{
+		bIsInCombatPose = !bIsInCombatPose;
+		if (bIsInCombatPose)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = CombatSpeed;
+		}
+		else
+		{
+			GetCharacterMovement()->MaxWalkSpeed = NonCombatSpeed;
+		}
+	}
+}
+
+void AShooterCharacter::CrouchButtonPressed()
+{
+	if (!GetCharacterMovement()->IsFalling())
+	{
+		bIsCrouching = !bIsCrouching;
+		bIsInCombatPose = true;
+	}
+	if (bIsCrouching)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = CrouchingSpeed;
+		GetCharacterMovement()->GroundFriction = CrouchingGroundFriction;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = CombatSpeed;
+		GetCharacterMovement()->GroundFriction = BaseGroundFriction;
+	}
+}
+
+void AShooterCharacter::Jump()
+{
+	if (bIsCrouching)
+	{
+		bIsCrouching = false;
+		GetCharacterMovement()->MaxWalkSpeed = CombatSpeed;
+		GetCharacterMovement()->GroundFriction = BaseGroundFriction;
+	}
+	else
+	{
+		ACharacter::Jump();
+	}
+}
+
+void AShooterCharacter::InterpCapsuleHalfHeight(float DeltaTime)
+{
+	float TargetCapsuleHalfHeight{};
+	if (bIsCrouching)
+	{
+		TargetCapsuleHalfHeight = CrouchingCapsuleHalfHeight;
+	}
+	else
+	{
+		TargetCapsuleHalfHeight = StandingCapsuleHalfHeight;
+	}
+
+	const float InterpHalfHeight{ FMath::FInterpTo(GetCapsuleComponent()->GetScaledCapsuleHalfHeight(), TargetCapsuleHalfHeight, DeltaTime, 15.f ) };
+
+	// The mesh will dip into the floor when crouching so we need to set an offset so we can move the character out of the floor
+	// Negative when crouching, Positive when standing 
+	const float DeltaHalfHeight{ InterpHalfHeight - GetCapsuleComponent()->GetScaledCapsuleHalfHeight() };
+	const FVector MeshOffset{ 0.f, 0.f, -DeltaHalfHeight };
+	GetMesh()->AddLocalOffset(MeshOffset);
+
+	GetCapsuleComponent()->SetCapsuleHalfHeight(InterpHalfHeight);
 }
 
