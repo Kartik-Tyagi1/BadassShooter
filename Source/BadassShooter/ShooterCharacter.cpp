@@ -13,6 +13,7 @@
 #include "Components/SphereComponent.h"
 #include "Weapon.h"
 #include "Components/CapsuleComponent.h"
+#include "Ammo.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
@@ -649,6 +650,29 @@ void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 	EquipWeapon(WeaponToSwap);
 }
 
+void AShooterCharacter::PickupAmmo(AAmmo* Ammo)
+{
+	// See if ammo map contains the type of ammo
+	if (AmmoMap.Find(Ammo->GetAmmoType()))
+	{
+		// Add the amount of ammo to the amount carried 
+		int32 AmmoCount = AmmoMap[Ammo->GetAmmoType()];
+		AmmoCount += Ammo->GetItemAmount();
+		// Set the ammo map amount to the new added amount
+		AmmoMap[Ammo->GetAmmoType()] = AmmoCount;
+	}
+
+	if (EquippedWeapon->GetAmmoType() == Ammo->GetAmmoType())
+	{
+		if (EquippedWeapon->GetAmmoInMagazine() == 0)
+		{
+			ReloadWeapon();
+		}
+	}
+
+	Ammo->Destroy();
+}
+
 
 FVector AShooterCharacter::GetCameraInterpEndLocation()
 {
@@ -670,6 +694,12 @@ void AShooterCharacter::GetPickupItem(AItem* Item)
 	if (Weapon)
 	{
 		SwapWeapon(Weapon);
+	}
+
+	auto Ammo = Cast<AAmmo>(Item);
+	if (Ammo)
+	{
+		PickupAmmo(Ammo);
 	}
 }
 

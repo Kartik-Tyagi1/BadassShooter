@@ -66,7 +66,7 @@ protected:
 	void SetItemRarityAndStars();
 
 	/* Set properties of the item based on the state*/
-	void SetItemProperties(EItemState State);
+	virtual void SetItemProperties(EItemState State);
 
 	/* Call back function to finish interping after the interping timer is done */
 	void EndItemInterpTimer();
@@ -88,6 +88,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* AreaSphere;
 
+	/*------------------------------------------- END WIDGET SECTIONS -----------------------------------------------------*/
+
 	/* Pickup widget for the item */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* PickupWidget;
@@ -96,25 +98,27 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	FString ItemName;
 
-	/* Name of the Item */
+	/* Type of the Item */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	FString ItemType;
 
-	/* Name of the Item */
+	/* Rarity of the Item */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	EItemRarity ItemRarity;
 
-	/* Name of the Item */
+	/* Rarity Text of the Item */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	FString ItemRarityText;
 
-	/* Name of the Item */
+	/* Amount of the Item (i.e amount of ammo) -- THIS IS ALSO USED TO TRACK AMMO AMOUNT AND STUFF NOT ONLY FOR WIDGET */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	int32 ItemAmount;
 
 	/* Array that holds booleans for amount of stars shown in widget */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	TArray<bool> ActiveStars;
+
+	/*------------------------------------------- END WIDGET SECTIONS -----------------------------------------------------*/
 
 	/* State of the item (on ground, equppied etc.) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
@@ -174,6 +178,8 @@ public:
 
 	FORCEINLINE USoundCue* GetPickupSound() const { return PickupSound; }
 	FORCEINLINE USoundCue* GetEquipSound() const { return EquipSound; }
+
+	FORCEINLINE int32 GetItemAmount() const { return ItemAmount; }
 
 	
 };

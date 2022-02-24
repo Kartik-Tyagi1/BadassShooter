@@ -97,8 +97,9 @@ protected:
 	/* Function to drop currently equipped weapon */
 	void DropWeapon();
 
-	/* Function to swap weapons */
+	/* Item Pickup Functions */
 	void SwapWeapon(AWeapon* WeaponToSwap);
+	void PickupAmmo(class AAmmo* Ammo);
 
 	/* Sets up inital ammo in the ammo map */
 	void InitalizeAmmoMap();
