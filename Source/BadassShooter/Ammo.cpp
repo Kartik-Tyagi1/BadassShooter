@@ -4,6 +4,7 @@
 #include "Ammo.h"
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 
 
 AAmmo::AAmmo()
@@ -13,6 +14,7 @@ AAmmo::AAmmo()
 
 	GetCollisionBox()->SetupAttachment(GetRootComponent());
 	GetAreaSphere()->SetupAttachment(GetRootComponent());
+	GetPickupWidget()->SetupAttachment(GetRootComponent());
 
 }
 
