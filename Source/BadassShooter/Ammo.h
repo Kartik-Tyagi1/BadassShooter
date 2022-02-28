@@ -24,6 +24,15 @@ protected:
 
 	virtual void SetItemProperties(EItemState State) override;
 
+	UFUNCTION()
+	void AmmoCollisionSphereOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Ammo, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* AmmoMesh;
@@ -34,6 +43,10 @@ private:
 	/* Texture used on ammo pickup widget */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, meta = (AllowPrivateAccess = "true"))
 	UTexture2D* AmmoIconTexture;
+
+	/* Collison sphere for automatic ammo pickup */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, meta = (AllowPrivateAccess = "true"))
+	USphereComponent* AmmoCollisionSphere;
 
 public:
 	FORCEINLINE UStaticMeshComponent* GetAmmoMesh() const { return AmmoMesh; }

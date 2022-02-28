@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
+#include "ShooterCharacter.h"
 
 
 AAmmo::AAmmo()
@@ -16,11 +17,15 @@ AAmmo::AAmmo()
 	GetAreaSphere()->SetupAttachment(GetRootComponent());
 	GetPickupWidget()->SetupAttachment(GetRootComponent());
 
+	AmmoCollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AmmoCollisionSphere"));
+	AmmoCollisionSphere->SetupAttachment(GetRootComponent());
 }
 
 void AAmmo::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AmmoCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &AAmmo::AmmoCollisionSphereOverlap);
 }
 
 void AAmmo::Tick(float DeltaTime)
@@ -68,6 +73,18 @@ void AAmmo::SetItemProperties(EItemState State)
 		AmmoMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		AmmoMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
+	}
+}
+
+void AAmmo::AmmoCollisionSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		auto OverlappedCharacter = Cast<AShooterCharacter>(OtherActor);
+		if (OverlappedCharacter)
+		{
+			StartItemCurveInterpTimer(OverlappedCharacter);
+		}
 	}
 }
 

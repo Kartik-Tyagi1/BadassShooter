@@ -6,6 +6,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "ShooterCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AItem::AItem():
@@ -226,6 +228,12 @@ void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character)
 {
 	// This will be called from shooter character so we have to supply the data to the reference
 	ShooterCharacterRef = Character;
+
+	// Play the pickup sound here instead of in ShooterCharacter.cpp so that the auto ammo pickup plays the sound as well
+	if (PickupSound)
+	{
+		UGameplayStatics::PlaySound2D(this, PickupSound);
+	}
 
 	// Set Item Start location
 	ItemInterpStartLocation = GetActorLocation();
