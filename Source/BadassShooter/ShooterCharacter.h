@@ -20,6 +20,30 @@ enum class ECombatState : uint8
 
 };
 
+UENUM(BlueprintType)
+enum class EItemType : uint8
+{
+	EIT_Ammo	UMETA(DisplayName = "Ammo"),
+	EIT_Weapon	UMETA(DisplayName = "Weapon"),
+
+	EIT_MAX		UMETA(DisplayName = "DefaultMAX")
+};
+
+USTRUCT(BlueprintType) 
+struct FInterpLocation
+{
+	GENERATED_BODY()
+	
+	/* Location to where item will interp to*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USceneComponent* SceneComponent;
+
+	/* Number of items interping to the above location */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 ItemCount;
+		
+};
+
 UCLASS()
 class BADASSSHOOTER_API AShooterCharacter : public ACharacter
 {
@@ -138,6 +162,9 @@ protected:
 
 	/* Function for Capsult Half Height Interpolation */
 	void InterpCapsuleHalfHeight(float DeltaTime);
+
+	/* Intialize the Interp Location array */
+	void InitializeInterpLocations();
 
 
 public:	
@@ -359,6 +386,39 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float CrouchingGroundFriction;
 
+	/*------------------------------------------------- Pickup Interpolation -------------------------------------------------------------*/
+
+	/* Interpolation Locations for Pickups */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* WeaponInterpComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_2;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_3;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_4;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_5;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_6;
+
+	/* Item type that is being picked up */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	EItemType ItemType;
+
+	/* Array of interp location */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	TArray<FInterpLocation> InterpLocations;
+
+
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
@@ -384,4 +444,6 @@ public:
 	FORCEINLINE bool GetIsInCombatPose() const { return bIsInCombatPose; } // Blueprint callable because it is used in crosshair HUD
 
 	FORCEINLINE bool GetIsCrouching() const { return bIsCrouching; }
+
+	FInterpLocation GetInterpLocation(int32 index);
 };

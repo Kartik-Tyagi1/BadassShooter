@@ -67,7 +67,9 @@ AShooterCharacter::AShooterCharacter() :
 	CrouchingCapsuleHalfHeight(44.f),
 	// Ground Friction
 	BaseGroundFriction(2.f),
-	CrouchingGroundFriction(100.f)
+	CrouchingGroundFriction(100.f),
+	// Item Type
+	ItemType(EItemType::EIT_MAX)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -97,6 +99,28 @@ AShooterCharacter::AShooterCharacter() :
 	// Set HandSceneComponent (Attachment is setup in GrabMagazine)
 	HandSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("HandSceneComponent"));
 
+	// Setup Interpolation Components
+	WeaponInterpComp = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponInterpComp"));
+	WeaponInterpComp->SetupAttachment(GetCamera());
+
+	InterpComp_1 = CreateDefaultSubobject<USceneComponent>(TEXT("InterpComp_1"));
+	InterpComp_1->SetupAttachment(GetCamera());
+
+	InterpComp_2 = CreateDefaultSubobject<USceneComponent>(TEXT("InterpComp_2"));
+	InterpComp_2->SetupAttachment(GetCamera());
+
+	InterpComp_3 = CreateDefaultSubobject<USceneComponent>(TEXT("InterpComp_3"));
+	InterpComp_3->SetupAttachment(GetCamera());
+
+	InterpComp_4 = CreateDefaultSubobject<USceneComponent>(TEXT("InterpComp_4"));
+	InterpComp_4->SetupAttachment(GetCamera());
+
+	InterpComp_5 = CreateDefaultSubobject<USceneComponent>(TEXT("InterpComp_5"));
+	InterpComp_5->SetupAttachment(GetCamera());
+
+	InterpComp_6 = CreateDefaultSubobject<USceneComponent>(TEXT("InterpComp_6"));
+	InterpComp_6->SetupAttachment(GetCamera());
+
 }
 
 // Called when the game starts or when spawned
@@ -123,6 +147,9 @@ void AShooterCharacter::BeginPlay()
 
 	// Set Character Speed
 	GetCharacterMovement()->MaxWalkSpeed = NonCombatSpeed;
+
+	// Setup the interp location for weapon and item pickups
+	InitializeInterpLocations();
 
 }
 
@@ -884,5 +911,25 @@ void AShooterCharacter::InterpCapsuleHalfHeight(float DeltaTime)
 	GetMesh()->AddLocalOffset(MeshOffset);
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(InterpHalfHeight);
+}
+
+void AShooterCharacter::InitializeInterpLocations()
+{
+	InterpLocations.Add(FInterpLocation{ WeaponInterpComp, 0 });
+	InterpLocations.Add(FInterpLocation{ InterpComp_1, 0 });
+	InterpLocations.Add(FInterpLocation{ InterpComp_2, 0 });
+	InterpLocations.Add(FInterpLocation{ InterpComp_3, 0 });
+	InterpLocations.Add(FInterpLocation{ InterpComp_4, 0 });
+	InterpLocations.Add(FInterpLocation{ InterpComp_5, 0 });
+	InterpLocations.Add(FInterpLocation{ InterpComp_6, 0 });
+}
+
+FInterpLocation AShooterCharacter::GetInterpLocation(int32 index)
+{
+	if (index <= InterpLocations.Num())
+	{
+		return InterpLocations[index];
+	}
+	return FInterpLocation();
 }
 
