@@ -67,9 +67,8 @@ AShooterCharacter::AShooterCharacter() :
 	CrouchingCapsuleHalfHeight(44.f),
 	// Ground Friction
 	BaseGroundFriction(2.f),
-	CrouchingGroundFriction(100.f),
-	// Item Type
-	ItemType(EItemType::EIT_MAX)
+	CrouchingGroundFriction(100.f)
+	
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;

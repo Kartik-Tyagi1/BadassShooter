@@ -21,7 +21,9 @@ AItem::AItem():
 	ItemInterpStartLocation(FVector(0.f)),
 	ItemInterpTargetLocation(FVector(0.f)),
 	ItemZCurveInterpTime(0.7f),
-	bIsInterping(false)
+	bIsInterping(false),
+	// Item Type
+	ItemType(EItemType::EIT_MAX)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;

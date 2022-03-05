@@ -20,15 +20,6 @@ enum class ECombatState : uint8
 
 };
 
-UENUM(BlueprintType)
-enum class EItemType : uint8
-{
-	EIT_Ammo	UMETA(DisplayName = "Ammo"),
-	EIT_Weapon	UMETA(DisplayName = "Weapon"),
-
-	EIT_MAX		UMETA(DisplayName = "DefaultMAX")
-};
-
 USTRUCT(BlueprintType) 
 struct FInterpLocation
 {
@@ -410,10 +401,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* InterpComp_6;
 
-	/* Item type that is being picked up */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	EItemType ItemType;
-
+	
 	/* Array of interp location */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	TArray<FInterpLocation> InterpLocations;
