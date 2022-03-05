@@ -401,7 +401,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* InterpComp_6;
 
-	
 	/* Array of interp location */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	TArray<FInterpLocation> InterpLocations;
@@ -433,5 +432,12 @@ public:
 
 	FORCEINLINE bool GetIsCrouching() const { return bIsCrouching; }
 
+	/* Returns the InterpLocation in the InterpLocations array */
 	FInterpLocation GetInterpLocation(int32 index);
+	
+	/* Returns the index of the InterpLocation with the lowest Item Count*/
+	int32 GetInterpLocationsLowestItemIndex();
+
+	/* Increments the item count of the InterpLocation being used when interping */
+	void IncrementInterpLocationsItemCount(int32 Index, int32 Amount);
 };

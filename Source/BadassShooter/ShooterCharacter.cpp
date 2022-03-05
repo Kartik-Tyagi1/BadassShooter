@@ -932,3 +932,27 @@ FInterpLocation AShooterCharacter::GetInterpLocation(int32 index)
 	return FInterpLocation();
 }
 
+int32 AShooterCharacter::GetInterpLocationsLowestItemIndex()
+{
+	int32 LowestItemIndex = 1;
+	int32 LowestItemCount = INT_MAX;
+
+	for (int32 i = 1; i < InterpLocations.Num(); i++)
+	{
+		if (InterpLocations[i].ItemCount < LowestItemCount)
+		{
+			LowestItemCount = InterpLocations[i].ItemCount;
+			LowestItemIndex = i;
+		}
+	}
+
+	return LowestItemIndex;
+}
+
+void AShooterCharacter::IncrementInterpLocationsItemCount(int32 Index, int32 Amount)
+{
+	if (Amount < -1 || Amount > 1 || Amount == 0) return; // Should only increment or decrement by +- 1
+
+	InterpLocations[Index].ItemCount += Amount;
+}
+

@@ -23,7 +23,7 @@ AItem::AItem():
 	ItemZCurveInterpTime(0.7f),
 	bIsInterping(false),
 	// Item Type
-	ItemType(EItemType::EIT_MAX)
+	ItemPickupType(EItemType::EIT_MAX)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -231,6 +231,9 @@ void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character)
 	// This will be called from shooter character so we have to supply the data to the reference
 	ShooterCharacterRef = Character;
 
+	InterpLocationIndex = ShooterCharacterRef->GetInterpLocationsLowestItemIndex();
+	ShooterCharacterRef->IncrementInterpLocationsItemCount(InterpLocationIndex, 1);
+
 	// Play the pickup sound here instead of in ShooterCharacter.cpp so that the auto ammo pickup plays the sound as well
 	if (PickupSound)
 	{
@@ -250,6 +253,8 @@ void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character)
 
 void AItem::EndItemInterpTimer()
 {
+	ShooterCharacterRef->IncrementInterpLocationsItemCount(InterpLocationIndex, -1);
+
 	bIsInterping = false;
 	if (ShooterCharacterRef)
 	{
@@ -275,7 +280,8 @@ void AItem::InterpolateItemLocation(float DeltaTime)
 		FVector ItemLocation = ItemInterpStartLocation;
 
 		// This is where the end locaiton of the camera is (a little in front and above the camera)
-		const FVector CameraLocation = ShooterCharacterRef->GetCameraInterpEndLocation();
+		//const FVector CameraLocation = ShooterCharacterRef->GetCameraInterpEndLocation();
+		const FVector CameraLocation = GetInterpLocation();
 
 		// Calculate the Delta Between the Item Location and the Camera Location so the item will rise
 		const FVector ItemToCameraVector{ 0.f, 0.f, (CameraLocation - ItemLocation).Z };
@@ -302,6 +308,24 @@ void AItem::InterpolateItemLocation(float DeltaTime)
 
 	}
 
+}
+
+FVector AItem::GetInterpLocation()
+{
+	if (ShooterCharacterRef == nullptr) return FVector(0.f);
+
+	switch (ItemPickupType)
+	{
+	// Item locations are indicies 1-7
+	case EItemType::EIT_Ammo:
+		return ShooterCharacterRef->GetInterpLocation(InterpLocationIndex).SceneComponent->GetComponentLocation();
+		break;
+	// Weapon locations is index 0
+	case EItemType::EIT_Weapon:
+		return ShooterCharacterRef->GetInterpLocation(0).SceneComponent->GetComponentLocation();
+		break;
+	}
+	return FVector();
 }
 
 

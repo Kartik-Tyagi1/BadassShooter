@@ -83,6 +83,9 @@ protected:
 	/* Function to handle the item interpolation when picking up and item */
 	void InterpolateItemLocation(float DeltaTime);
 
+	/* Function to determine item interp location from shooter character InterpLocations array */
+	FVector GetInterpLocation();
+
 private:
 
 	/* Skeletal Mesh of the Item */
@@ -176,7 +179,10 @@ private:
 
 	/* Item type that is being picked up */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	EItemType ItemType;
+	EItemType ItemPickupType;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	int32 InterpLocationIndex;
 
 
 public:	
