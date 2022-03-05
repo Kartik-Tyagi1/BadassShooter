@@ -86,6 +86,7 @@ protected:
 	/* Function to determine item interp location from shooter character InterpLocations array */
 	FVector GetInterpLocation();
 
+
 private:
 
 	/* Skeletal Mesh of the Item */
@@ -185,6 +186,8 @@ private:
 	int32 InterpLocationIndex;
 
 
+
+
 public:	
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
@@ -201,6 +204,9 @@ public:
 	FORCEINLINE USoundCue* GetEquipSound() const { return EquipSound; }
 
 	FORCEINLINE int32 GetItemAmount() const { return ItemAmount; }
+
+	void PlayPickupSound();
+	void PlayEquipSound();
 
 	
 };

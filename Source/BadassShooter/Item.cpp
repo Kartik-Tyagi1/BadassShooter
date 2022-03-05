@@ -235,10 +235,7 @@ void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character)
 	ShooterCharacterRef->IncrementInterpLocationsItemCount(InterpLocationIndex, 1);
 
 	// Play the pickup sound here instead of in ShooterCharacter.cpp so that the auto ammo pickup plays the sound as well
-	if (PickupSound)
-	{
-		UGameplayStatics::PlaySound2D(this, PickupSound);
-	}
+	PlayPickupSound();
 
 	// Set Item Start location
 	ItemInterpStartLocation = GetActorLocation();
@@ -249,6 +246,34 @@ void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character)
 
 	// Start the Timer
 	GetWorldTimerManager().SetTimer(ItemInterpTimer, this, &AItem::EndItemInterpTimer, ItemZCurveInterpTime);
+}
+
+void AItem::PlayPickupSound()
+{
+	if (ShooterCharacterRef == nullptr) return;
+
+	if (ShooterCharacterRef->ShouldPlayPickupSound())
+	{
+		if (PickupSound)
+		{
+			ShooterCharacterRef->StartPickupSoundTimer();
+			UGameplayStatics::PlaySound2D(this, PickupSound);
+		}
+	}
+}
+
+void AItem::PlayEquipSound()
+{
+	if (ShooterCharacterRef == nullptr) return;
+
+	if (ShooterCharacterRef->ShouldPlayEquipSound())
+	{
+		if (EquipSound)
+		{
+			ShooterCharacterRef->StartEquipSoundTimer();
+			UGameplayStatics::PlaySound2D(this, EquipSound);
+		}
+	}
 }
 
 void AItem::EndItemInterpTimer()

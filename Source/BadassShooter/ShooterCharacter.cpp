@@ -67,8 +67,12 @@ AShooterCharacter::AShooterCharacter() :
 	CrouchingCapsuleHalfHeight(44.f),
 	// Ground Friction
 	BaseGroundFriction(2.f),
-	CrouchingGroundFriction(100.f)
-	
+	CrouchingGroundFriction(100.f),
+	// Item Interpolation Sounds Limits
+	bShouldPlayPickupSound(true),
+	bShouldPlayEquipSound(true),
+	PickupSoundWaitDuration(0.1f),
+	EquipSoundWaitDuration(0.1f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -618,6 +622,9 @@ void AShooterCharacter::InteractButtonPressed()
 	{
 		TraceHitItem->StartItemCurveInterpTimer(this);
 
+		// Value would stay is user moved too quickly so the item needs to be to null manully
+		TraceHitItem = nullptr; 
+
 	}
 	
 }
@@ -692,6 +699,7 @@ void AShooterCharacter::PickupAmmo(AAmmo* Ammo)
 		}
 	}
 
+
 	Ammo->Destroy();
 }
 
@@ -707,10 +715,7 @@ FVector AShooterCharacter::GetCameraInterpEndLocation()
 
 void AShooterCharacter::GetPickupItem(AItem* Item) 
 {
-	if (Item->GetEquipSound())
-	{
-		UGameplayStatics::PlaySound2D(this, Item->GetEquipSound());
-	}
+	Item->PlayEquipSound();
 
 	auto Weapon = Cast<AWeapon>(Item);
 	if (Weapon)
@@ -956,3 +961,25 @@ void AShooterCharacter::IncrementInterpLocationsItemCount(int32 Index, int32 Amo
 	InterpLocations[Index].ItemCount += Amount;
 }
 
+void AShooterCharacter::StartPickupSoundTimer()
+{
+	bShouldPlayPickupSound = false;
+	GetWorldTimerManager().SetTimer(PickupSoundTimer, this, &AShooterCharacter::EndPickupSoundTimer, PickupSoundWaitDuration);
+}
+
+void AShooterCharacter::StartEquipSoundTimer()
+{
+	bShouldPlayEquipSound = false;
+	GetWorldTimerManager().SetTimer(EquipSoundTimer, this, &AShooterCharacter::EndEquipSoundTimer, EquipSoundWaitDuration);
+}
+
+
+void AShooterCharacter::EndPickupSoundTimer()
+{
+	bShouldPlayPickupSound = true;
+}
+
+void AShooterCharacter::EndEquipSoundTimer()
+{
+	bShouldPlayEquipSound = true;
+}
