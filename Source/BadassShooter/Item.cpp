@@ -64,6 +64,9 @@ void AItem::BeginPlay()
 
 	// Set Item properties based on itemstate variable
 	SetItemProperties(ItemState);
+
+	// Turn of custom depth to start 
+	InitializeCustomDepth();
 }
 
 
@@ -276,6 +279,7 @@ void AItem::PlayEquipSound()
 	}
 }
 
+
 void AItem::EndItemInterpTimer()
 {
 	ShooterCharacterRef->IncrementInterpLocationsItemCount(InterpLocationIndex, -1);
@@ -351,6 +355,22 @@ FVector AItem::GetInterpLocation()
 		break;
 	}
 	return FVector();
+}
+
+
+void AItem::EnableCustomDepth()
+{
+	ItemMesh->SetRenderCustomDepth(true);
+}
+
+void AItem::DisableCustomDepth()
+{
+	ItemMesh->SetRenderCustomDepth(false);
+}
+
+void AItem::InitializeCustomDepth()
+{
+	DisableCustomDepth();
 }
 
 

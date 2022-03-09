@@ -208,5 +208,9 @@ public:
 	void PlayPickupSound();
 	void PlayEquipSound();
 
+	virtual void EnableCustomDepth();
+	virtual void DisableCustomDepth();
+	void InitializeCustomDepth();
+
 	
 };
