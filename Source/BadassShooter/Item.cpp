@@ -291,6 +291,10 @@ void AItem::EndItemInterpTimer()
 	}
 	// Set Item back to normal scale
 	SetActorScale3D(FVector(1.f));
+
+	// Turn off glow material and outline when item is equipped
+	DisableGlowMaterial();
+	DisableCustomDepth();
 }
 
 void AItem::InterpolateItemLocation(float DeltaTime)
@@ -366,6 +370,25 @@ void AItem::OnConstruction(const FTransform& Transform)
 
 		// Set the dynamic material instance to the mesh 
 		ItemMesh->SetMaterial(MaterialIndex, DynamicMaterialInstance);
+
+		// Turn on the glow material
+		EnableGlowMaterial();
+	}
+}
+
+void AItem::EnableGlowMaterial()
+{
+	if (DynamicMaterialInstance)
+	{
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowBlendAlpha"), 0);
+	}
+}
+
+void AItem::DisableGlowMaterial()
+{
+	if (DynamicMaterialInstance)
+	{
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowBlendAlpha"), 1);
 	}
 }
 

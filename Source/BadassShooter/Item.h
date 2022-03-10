@@ -89,6 +89,10 @@ protected:
 	/* C++ verison of construction strip in blueprint */
 	virtual void OnConstruction(const FTransform& Transform) override;
 
+	/* Enable and disable glow material */
+	void EnableGlowMaterial();
+	void DisableGlowMaterial();
+
 
 private:
 
