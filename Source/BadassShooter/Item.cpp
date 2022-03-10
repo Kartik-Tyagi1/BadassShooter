@@ -23,7 +23,11 @@ AItem::AItem():
 	ItemZCurveInterpTime(0.7f),
 	bIsInterping(false),
 	// Item Type
-	ItemPickupType(EItemType::EIT_MAX)
+	ItemPickupType(EItemType::EIT_MAX),
+	// Materials
+	MaterialIndex(0),
+	// Custom Depth
+	bCanChangeCustomDepth(true)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -249,6 +253,8 @@ void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character)
 
 	// Start the Timer
 	GetWorldTimerManager().SetTimer(ItemInterpTimer, this, &AItem::EndItemInterpTimer, ItemZCurveInterpTime);
+
+	bCanChangeCustomDepth = false;
 }
 
 void AItem::PlayPickupSound()
@@ -294,6 +300,8 @@ void AItem::EndItemInterpTimer()
 
 	// Turn off glow material and outline when item is equipped
 	DisableGlowMaterial();
+
+	bCanChangeCustomDepth = true;
 	DisableCustomDepth();
 }
 
@@ -395,12 +403,18 @@ void AItem::DisableGlowMaterial()
 
 void AItem::EnableCustomDepth()
 {
-	ItemMesh->SetRenderCustomDepth(true);
+	if (bCanChangeCustomDepth)
+	{
+		ItemMesh->SetRenderCustomDepth(true);
+	}
 }
 
 void AItem::DisableCustomDepth()
 {
-	ItemMesh->SetRenderCustomDepth(false);
+	if (bCanChangeCustomDepth)
+	{
+		ItemMesh->SetRenderCustomDepth(false);
+	}
 }
 
 void AItem::InitializeCustomDepth()
