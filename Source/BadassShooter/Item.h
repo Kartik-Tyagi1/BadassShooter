@@ -89,9 +89,10 @@ protected:
 	/* C++ verison of construction strip in blueprint */
 	virtual void OnConstruction(const FTransform& Transform) override;
 
-	/* Enable and disable glow material */
-	void EnableGlowMaterial();
-	void DisableGlowMaterial();
+	/* Pulse Effect Functions */
+	void StartPulseTimer();
+	void ResetPulseTimer();
+	void UpdatePulseParameters();
 
 
 private:
@@ -206,10 +207,28 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	UMaterialInstance* MaterialInstance;
 
+	/* Curve that hold that values of the dynamic material instance */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	class UCurveVector* PulseCurve;
+
+	/* Timer Handle that controls the pulse effect */
+	FTimerHandle PulseTimer;
+
+	float PulseDuration;
+
+	UPROPERTY(EditAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float GlowBlendAlpha;
+
+	UPROPERTY(EditAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float FresnelExponent;
+
+	UPROPERTY(EditAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float FrenselReflectionFraction;
+
+
+	/*----------------------------------- Custom Depth (related to public section) --------------------------------------------*/
+
 	bool bCanChangeCustomDepth;
-
-
-
 
 
 public:	
@@ -235,6 +254,10 @@ public:
 	virtual void EnableCustomDepth();
 	virtual void DisableCustomDepth();
 	void InitializeCustomDepth();
+
+	/* Enable and disable glow material */
+	void EnableGlowMaterial();
+	void DisableGlowMaterial();
 
 	
 };

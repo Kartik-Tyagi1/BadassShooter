@@ -8,6 +8,7 @@
 #include "ShooterCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Curves/CurveVector.h"
 
 // Sets default values
 AItem::AItem():
@@ -26,6 +27,11 @@ AItem::AItem():
 	ItemPickupType(EItemType::EIT_MAX),
 	// Materials
 	MaterialIndex(0),
+	// Pulse Material Parameters
+	PulseDuration(3.f),
+	GlowBlendAlpha(150.f),
+	FresnelExponent(4.f),
+	FrenselReflectionFraction(3.f),
 	// Custom Depth
 	bCanChangeCustomDepth(true)
 {
@@ -71,6 +77,9 @@ void AItem::BeginPlay()
 
 	// Turn of custom depth to start 
 	InitializeCustomDepth();
+
+	// Start the pulse effect
+	StartPulseTimer();
 }
 
 
@@ -81,6 +90,9 @@ void AItem::Tick(float DeltaTime)
 
 	// Check if bIsInterping and start interpolation
 	InterpolateItemLocation(DeltaTime);
+
+	// Get the pulse effect going
+	UpdatePulseParameters();
 
 }
 
@@ -397,6 +409,32 @@ void AItem::DisableGlowMaterial()
 	if (DynamicMaterialInstance)
 	{
 		DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowBlendAlpha"), 1);
+	}
+}
+
+void AItem::StartPulseTimer()
+{
+	ResetPulseTimer();
+}
+
+void AItem::ResetPulseTimer()
+{
+	if (ItemState != EItemState::EIS_Pickup) return;
+
+	GetWorldTimerManager().SetTimer(PulseTimer, this, &AItem::ResetPulseTimer, PulseDuration);
+}
+
+void AItem::UpdatePulseParameters()
+{
+	if (ItemState != EItemState::EIS_Pickup) return;
+	
+	const float ElapsedTime{ GetWorldTimerManager().GetTimerElapsed(PulseTimer) };
+	if (PulseCurve)
+	{
+		const FVector CurveVector{ PulseCurve->GetVectorValue(ElapsedTime) };
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowBlendAlpha"), CurveVector.X * GlowBlendAlpha);
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FresnelExponent"), CurveVector.Y * FresnelExponent);
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FrenselReflectionFraction"), CurveVector.X * FrenselReflectionFraction);
 	}
 }
 

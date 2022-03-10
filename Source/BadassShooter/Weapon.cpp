@@ -59,6 +59,7 @@ void AWeapon::StopFalling()
 {
 	bIsFalling = false;
 	SetItemState(EItemState::EIS_Pickup);
+	StartPulseTimer();
 }
 
 void AWeapon::DecrementAmmo()
