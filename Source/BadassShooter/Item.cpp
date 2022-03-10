@@ -357,6 +357,18 @@ FVector AItem::GetInterpLocation()
 	return FVector();
 }
 
+void AItem::OnConstruction(const FTransform& Transform)
+{
+	if (MaterialInstance)
+	{
+		// Construct dynamic material instance based on material instance
+		DynamicMaterialInstance = UMaterialInstanceDynamic::Create(MaterialInstance, this);
+
+		// Set the dynamic material instance to the mesh 
+		ItemMesh->SetMaterial(MaterialIndex, DynamicMaterialInstance);
+	}
+}
+
 
 void AItem::EnableCustomDepth()
 {

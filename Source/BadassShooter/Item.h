@@ -86,6 +86,9 @@ protected:
 	/* Function to determine item interp location from shooter character InterpLocations array */
 	FVector GetInterpLocation();
 
+	/* C++ verison of construction strip in blueprint */
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 
 private:
 
@@ -184,6 +187,21 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	int32 InterpLocationIndex;
+
+	/*---------------------------------------------- Item Materials -----------------------------------------------------*/
+
+	/* Material index on item that we want to set */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	int32 MaterialIndex;
+
+	/* Dynamic material instance that can be set/changed during runtime (thats why its dynamic) */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UMaterialInstanceDynamic* DynamicMaterialInstance;
+
+	/* The material instance the dynamic material instance refers to */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UMaterialInstance* MaterialInstance;
+
 
 
 
