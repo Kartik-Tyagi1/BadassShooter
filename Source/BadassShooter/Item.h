@@ -211,6 +211,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class UCurveVector* PulseCurve;
 
+	/* Curve that hold that values of the dynamic material instance */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UCurveVector* InterpPulseCurve;
+
 	/* Timer Handle that controls the pulse effect */
 	FTimerHandle PulseTimer;
 

@@ -262,6 +262,7 @@ void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character)
 	// Set IsInterping and ItemState
 	bIsInterping = true;
 	SetItemState(EItemState::EIS_EquipInterping);
+	GetWorldTimerManager().ClearTimer(PulseTimer);
 
 	// Start the Timer
 	GetWorldTimerManager().SetTimer(ItemInterpTimer, this, &AItem::EndItemInterpTimer, ItemZCurveInterpTime);
@@ -306,6 +307,7 @@ void AItem::EndItemInterpTimer()
 	if (ShooterCharacterRef)
 	{
 		ShooterCharacterRef->GetPickupItem(this);
+		SetItemState(EItemState::EIS_PickedUp);
 	}
 	// Set Item back to normal scale
 	SetActorScale3D(FVector(1.f));
@@ -414,27 +416,47 @@ void AItem::DisableGlowMaterial()
 
 void AItem::StartPulseTimer()
 {
-	ResetPulseTimer();
+	if (ItemState == EItemState::EIS_Pickup)
+	{
+		GetWorldTimerManager().SetTimer(PulseTimer, this, &AItem::ResetPulseTimer, PulseDuration);
+	}
 }
 
 void AItem::ResetPulseTimer()
 {
-	if (ItemState != EItemState::EIS_Pickup) return;
-
-	GetWorldTimerManager().SetTimer(PulseTimer, this, &AItem::ResetPulseTimer, PulseDuration);
+	StartPulseTimer();
 }
 
 void AItem::UpdatePulseParameters()
 {
-	if (ItemState != EItemState::EIS_Pickup) return;
-	
-	const float ElapsedTime{ GetWorldTimerManager().GetTimerElapsed(PulseTimer) };
-	if (PulseCurve)
+	float ElapsedTime{};
+	FVector CurveValue{};
+
+	switch (ItemState)
 	{
-		const FVector CurveVector{ PulseCurve->GetVectorValue(ElapsedTime) };
-		DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowBlendAlpha"), CurveVector.X * GlowBlendAlpha);
-		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FresnelExponent"), CurveVector.Y * FresnelExponent);
-		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FrenselReflectionFraction"), CurveVector.X * FrenselReflectionFraction);
+	case EItemState::EIS_Pickup:
+		if (PulseCurve)
+		{
+			ElapsedTime = GetWorldTimerManager().GetTimerElapsed(PulseTimer);
+			CurveValue = PulseCurve->GetVectorValue(ElapsedTime);
+		}
+		break;
+
+	case EItemState::EIS_EquipInterping:
+		if (InterpPulseCurve)
+		{
+			ElapsedTime = GetWorldTimerManager().GetTimerElapsed(ItemInterpTimer);
+			CurveValue = InterpPulseCurve->GetVectorValue(ElapsedTime);
+		}
+		break;
+	}
+
+	// Extra check is needed becuase default weapon was glowing even though it is in equipped state
+	if ((ItemState == EItemState::EIS_EquipInterping || ItemState == EItemState::EIS_Pickup) && DynamicMaterialInstance)
+	{
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowBlendAlpha"), CurveValue.X * GlowBlendAlpha);
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FresnelExponent"), CurveValue.Y * FresnelExponent);
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FrenselReflectionFraction"), CurveValue.X * FrenselReflectionFraction);
 	}
 }
 
