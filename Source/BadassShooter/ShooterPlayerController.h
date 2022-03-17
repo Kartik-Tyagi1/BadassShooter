@@ -21,13 +21,27 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	/* Holds a reference of the ShooterHUDOverlay widget blueprint (BP_ShooterHUDOverlay) */
+
+	/*---------------------------------------------------- AMMO COUNTER WIDGET ------------------------------------------------*/
+
+	/* Holds a reference of the ShooterHUDOverlay widget blueprint (BP_ShooterHUDOverlay -> Which holds the ammo counter) */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widgets, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UUserWidget> HUDOverlayClass;
 
-	/* Variable to hold the HUD overlay widget after creating it */
+	/* Variable to hold the HUD overlay widget after creating it (this only holds the ammo counter) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widgets, meta = (AllowPrivateAccess = "true"))
 	UUserWidget* HUDOverlay;
 
-	
+	/*---------------------------------------------------- INVENTORY WIDGET ------------------------------------------------*/
+
+	// TODO:: Create a new HUD blueprint class (and two more of the above) for the inventory so we can control it with a button mapping
+
+	/* Holds a reference of the ShooterInventoryHUDOverlay widget blueprint (BP_ShooterHUDOverlay -> Which holds the Inventory) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widgets, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> InventoryHUDOverlayClass;
+
+	/* Variable to hold the InventoryHUDoverlay widget after creating it (this only holds the Inventory) */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widgets, meta = (AllowPrivateAccess = "true"))
+	UUserWidget* InventoryHUDOverlay;
 };
+
