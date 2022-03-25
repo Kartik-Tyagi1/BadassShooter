@@ -248,6 +248,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
 	UTexture2D* AmmoImage;
 
+	/* The index in the inventory array (shootercharacter.h) where this weapon is stored */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
+	int32 SlotIndex;
+
 public:	
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
@@ -264,6 +268,9 @@ public:
 	FORCEINLINE USoundCue* GetEquipSound() const { return EquipSound; }
 
 	FORCEINLINE int32 GetItemAmount() const { return ItemAmount; }
+
+	FORCEINLINE int32 GetSlotIndex() const { return SlotIndex; }
+	FORCEINLINE void SetSlotIndex(int32 Index) { SlotIndex = Index; }
 
 	void PlayPickupSound();
 	void PlayEquipSound();

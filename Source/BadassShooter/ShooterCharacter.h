@@ -35,6 +35,8 @@ struct FInterpLocation
 		
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEquipItemDelegate, int32, CurrentSlotIndex, int32, NewSlotIndex);
+
 UCLASS()
 class BADASSSHOOTER_API AShooterCharacter : public ACharacter
 {
@@ -156,6 +158,18 @@ protected:
 
 	/* Intialize the Interp Location array */
 	void InitializeInterpLocations();
+
+	/* Functions to select weapon from inventory */
+	void FKeyPressed();
+	void OneKeyPressed();
+	void TwoKeyPressed();
+	void ThreeKeyPressed();
+	void FourKeyPressed();
+	void FiveKeyPressed();
+	
+	/* Function that changes selected item in the inventory */
+	void ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewItemIndex);
+
 
 
 public:	
@@ -429,6 +443,10 @@ private:
 	TArray<AItem*> Inventory;
 
 	const int32 INVENTORY_CAPACITY{ 6 };
+
+	/* Delegate the allows inventory slot information to be sent directly to InventoryBar Widget when equipping */
+	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
+	FEquipItemDelegate EquipItemDelegate;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
