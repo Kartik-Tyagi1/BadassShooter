@@ -533,6 +533,13 @@ void AShooterCharacter::TraceForItems()
 		if (ItemTraceResult.bBlockingHit)
 		{
 			TraceHitItem = Cast<AItem>(ItemTraceResult.Actor);
+
+			// This is to prevent spamming of the TraceHitItem if it is already interping 
+			if (TraceHitItem && TraceHitItem->GetItemState() == EItemState::EIS_EquipInterping)
+			{
+				TraceHitItem = nullptr;
+			}
+
 			if (TraceHitItem && TraceHitItem->GetPickupWidget())
 			{
 				// Show Item's Pickup Widget
@@ -634,6 +641,7 @@ void AShooterCharacter::InteractButtonPressed()
 	if (TraceHitItem)
 	{
 		TraceHitItem->StartItemCurveInterpTimer(this);
+		TraceHitItem = nullptr;
 	}
 	
 }
@@ -698,6 +706,7 @@ void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 	if (Inventory.Num() - 1 >= EquippedWeapon->GetSlotIndex())
 	{
 		Inventory[EquippedWeapon->GetSlotIndex()] = WeaponToSwap;
+		WeaponToSwap->SetSlotIndex(EquippedWeapon->GetSlotIndex());
 	}
 
 	DropWeapon();
@@ -1060,7 +1069,7 @@ void AShooterCharacter::FiveKeyPressed()
 void AShooterCharacter::ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewItemIndex)
 {
 	// Cannot Switch Item with same item		Cannot Switch item with slot that has nothing in it
-	if ((CurrentItemIndex == NewItemIndex) || (NewItemIndex > Inventory.Num())) return;
+	if ((CurrentItemIndex == NewItemIndex) || (NewItemIndex >= Inventory.Num())) return;
 
 	auto OldWeapon = EquippedWeapon;
 	auto NewWeapon = Cast<AWeapon>(Inventory[NewItemIndex]);
@@ -1069,4 +1078,5 @@ void AShooterCharacter::ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewI
 
 	OldWeapon->SetItemState(EItemState::EIS_PickedUp);
 	NewWeapon->SetItemState(EItemState::EIS_Equipped);
+
 }

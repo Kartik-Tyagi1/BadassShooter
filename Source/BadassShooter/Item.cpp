@@ -324,7 +324,7 @@ void AItem::EndItemInterpTimer()
 	if (ShooterCharacterRef)
 	{
 		ShooterCharacterRef->GetPickupItem(this);
-		SetItemState(EItemState::EIS_PickedUp);
+		// SetItemState(EItemState::EIS_PickedUp); -----> No longer needed since item state is set in the shootercharacter GetPickupItem function
 	}
 	// Set Item back to normal scale
 	SetActorScale3D(FVector(1.f));
