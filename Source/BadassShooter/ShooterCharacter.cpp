@@ -637,7 +637,7 @@ void AShooterCharacter::PlayGunFireMontage()
 
 void AShooterCharacter::InteractButtonPressed()
 {
-
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
 	if (TraceHitItem)
 	{
 		TraceHitItem->StartItemCurveInterpTimer(this);
@@ -1069,7 +1069,7 @@ void AShooterCharacter::FiveKeyPressed()
 void AShooterCharacter::ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewItemIndex)
 {
 	// Cannot Switch Item with same item		Cannot Switch item with slot that has nothing in it
-	if ((CurrentItemIndex == NewItemIndex) || (NewItemIndex >= Inventory.Num())) return;
+	if ((CurrentItemIndex == NewItemIndex) || (NewItemIndex >= Inventory.Num()) || (CombatState != ECombatState::ECS_Unoccupied)) return;
 
 	auto OldWeapon = EquippedWeapon;
 	auto NewWeapon = Cast<AWeapon>(Inventory[NewItemIndex]);
