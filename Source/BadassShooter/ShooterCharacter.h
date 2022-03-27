@@ -15,6 +15,7 @@ enum class ECombatState : uint8
 	ECS_Unoccupied				UMETA(DisplayName = "Unoccupied"),
 	ECS_FireTImerInProgress		UMETA(DisplayName = "FireTImerInProgress"),
 	ECS_Reloading				UMETA(DisplayName = "Reloading"),
+	ECS_Equipping				UMETA(DisplayName = "Equipping"),
 
 	ECS_MAX						UMETA(DisplayName = "DefaultMAX")
 
@@ -170,7 +171,9 @@ protected:
 	/* Function that changes selected item in the inventory */
 	void ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewItemIndex);
 
-
+	/* Finish Equipping Function (Called with anim notify in blueprint) */
+	UFUNCTION(BlueprintCallable)
+	void FinishEquipping();
 
 public:	
 	// Called every frame
@@ -284,7 +287,7 @@ private:
 	bool bFiringBullet;
 	FTimerHandle CrosshairShootTimer;
 
-	/*--------------------------------- WEAPON FIRE AND RELOADING  --------------------------------------------------------*/
+	/*--------------------------------- WEAPON FIRE, RELOADING, EQUIPPING --------------------------------------------------------*/
 
 	/* Combat state of the character (determines if player and shoot/reload) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -306,6 +309,10 @@ private:
 	bool bIsInCombatPose;
 
 	bool bAimingButtonPressed;
+
+	/* Equip Weapon Animation */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* EquipMontage;
 
 	/*--------------------------------- THE WEAPON AND TRACING FOR ITEMS --------------------------------------------------------*/
 

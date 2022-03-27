@@ -148,6 +148,7 @@ void AShooterCharacter::BeginPlay()
 	EquippedWeapon->SetSlotIndex(0);
 	EquippedWeapon->DisableCustomDepth();
 	EquippedWeapon->DisableGlowMaterial();
+	EquippedWeapon->SetCharacter(this);
 
 	// Set up the ammo map with the starting ammo values
 	InitalizeAmmoMap();
@@ -640,7 +641,7 @@ void AShooterCharacter::InteractButtonPressed()
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
 	if (TraceHitItem)
 	{
-		TraceHitItem->StartItemCurveInterpTimer(this);
+		TraceHitItem->StartItemCurveInterpTimer(this, true);
 		TraceHitItem = nullptr;
 	}
 	
@@ -1071,6 +1072,8 @@ void AShooterCharacter::ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewI
 	// Cannot Switch Item with same item		Cannot Switch item with slot that has nothing in it
 	if ((CurrentItemIndex == NewItemIndex) || (NewItemIndex >= Inventory.Num()) || (CombatState != ECombatState::ECS_Unoccupied)) return;
 
+	CombatState = ECombatState::ECS_Equipping;
+
 	auto OldWeapon = EquippedWeapon;
 	auto NewWeapon = Cast<AWeapon>(Inventory[NewItemIndex]);
 	
@@ -1079,4 +1082,18 @@ void AShooterCharacter::ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewI
 	OldWeapon->SetItemState(EItemState::EIS_PickedUp);
 	NewWeapon->SetItemState(EItemState::EIS_Equipped);
 
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && EquipMontage)
+	{
+		AnimInstance->Montage_Play(EquipMontage, 1.4f);
+		AnimInstance->Montage_JumpToSection(FName("Equip"));
+	}
+
+	NewWeapon->PlayEquipSound(true);
+
+}
+
+void AShooterCharacter::FinishEquipping()
+{
+	CombatState = ECombatState::ECS_Unoccupied;
 }

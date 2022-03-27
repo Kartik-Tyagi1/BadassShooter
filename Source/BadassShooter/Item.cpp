@@ -262,7 +262,7 @@ void AItem::SetItemState(EItemState State)
 	SetItemProperties(State);
 }
 
-void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character)
+void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character, bool bForcePlaySound)
 {
 	// This will be called from shooter character so we have to supply the data to the reference
 	ShooterCharacterRef = Character;
@@ -271,7 +271,7 @@ void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character)
 	ShooterCharacterRef->IncrementInterpLocationsItemCount(InterpLocationIndex, 1);
 
 	// Play the pickup sound here instead of in ShooterCharacter.cpp so that the auto ammo pickup plays the sound as well
-	PlayPickupSound();
+	PlayPickupSound(bForcePlaySound);
 
 	// Set Item Start location
 	ItemInterpStartLocation = GetActorLocation();
@@ -287,11 +287,19 @@ void AItem::StartItemCurveInterpTimer(AShooterCharacter* Character)
 	bCanChangeCustomDepth = false;
 }
 
-void AItem::PlayPickupSound()
+void AItem::PlayPickupSound(bool bForcePlaySound)
 {
 	if (ShooterCharacterRef == nullptr) return;
 
-	if (ShooterCharacterRef->ShouldPlayPickupSound())
+	if (bForcePlaySound)
+	{
+		if (PickupSound)
+		{
+			ShooterCharacterRef->StartPickupSoundTimer();
+			UGameplayStatics::PlaySound2D(this, PickupSound);
+		}
+	}
+	else if (ShooterCharacterRef->ShouldPlayPickupSound())
 	{
 		if (PickupSound)
 		{
@@ -301,10 +309,18 @@ void AItem::PlayPickupSound()
 	}
 }
 
-void AItem::PlayEquipSound()
+void AItem::PlayEquipSound(bool bForcePlaySound)
 {
 	if (ShooterCharacterRef == nullptr) return;
 
+	if (bForcePlaySound)
+	{
+		if (EquipSound)
+		{
+			ShooterCharacterRef->StartEquipSoundTimer();
+			UGameplayStatics::PlaySound2D(this, EquipSound);
+		}
+	}
 	if (ShooterCharacterRef->ShouldPlayEquipSound())
 	{
 		if (EquipSound)

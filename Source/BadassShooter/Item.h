@@ -262,7 +262,7 @@ public:
 
 	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const { return ItemMesh; }
 
-	void StartItemCurveInterpTimer(AShooterCharacter* Character);
+	void StartItemCurveInterpTimer(AShooterCharacter* Character, bool bForcePlaySound = false);
 
 	FORCEINLINE USoundCue* GetPickupSound() const { return PickupSound; }
 	FORCEINLINE USoundCue* GetEquipSound() const { return EquipSound; }
@@ -272,8 +272,10 @@ public:
 	FORCEINLINE int32 GetSlotIndex() const { return SlotIndex; }
 	FORCEINLINE void SetSlotIndex(int32 Index) { SlotIndex = Index; }
 
-	void PlayPickupSound();
-	void PlayEquipSound();
+	FORCEINLINE void SetCharacter(AShooterCharacter* Char) { ShooterCharacterRef = Char; }
+
+	void PlayPickupSound(bool bForcePlaySound = false);
+	void PlayEquipSound(bool bForcePlaySound = false);
 
 	virtual void EnableCustomDepth();
 	virtual void DisableCustomDepth();
