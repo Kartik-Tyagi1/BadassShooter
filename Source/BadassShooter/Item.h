@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/DataTable.h"
 #include "Item.generated.h"
 
 UENUM(BlueprintType)
@@ -37,6 +38,27 @@ enum class EItemType : uint8
 	EIT_Weapon	UMETA(DisplayName = "Weapon"),
 
 	EIT_MAX		UMETA(DisplayName = "DefaultMAX")
+};
+
+USTRUCT(BlueprintType)
+struct FItemRarityTable : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FLinearColor GlowColor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FLinearColor TextColor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString ItemRarityText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 NumberofStars;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* BackgroundIcon;
 };
 
 UCLASS()
@@ -86,7 +108,7 @@ protected:
 	/* Function to determine item interp location from shooter character InterpLocations array */
 	FVector GetInterpLocation();
 
-	/* C++ verison of construction strip in blueprint */
+	/* C++ verison of construction strip in blueprint, called when item is changed or moved */
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	/* Pulse Effect Functions */
@@ -255,6 +277,13 @@ private:
 	/* True when character inventory is full */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
 	bool bInventoryIsFull;
+
+	/*--------------------------------------------------- Data Table --------------------------------------------------------*/
+
+	/* Item Rarity DataTable */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	class UDataTable* ItemRarityDataTable;
+
 
 public:	
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
