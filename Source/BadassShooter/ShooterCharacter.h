@@ -37,6 +37,7 @@ struct FInterpLocation
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEquipItemDelegate, int32, CurrentSlotIndex, int32, NewSlotIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHighlightIconDelegate, int32, SlotIndex, bool, bPlayIconAnimation);
 
 UCLASS()
 class BADASSSHOOTER_API AShooterCharacter : public ACharacter
@@ -174,6 +175,13 @@ protected:
 	/* Finish Equipping Function (Called with anim notify in blueprint) */
 	UFUNCTION(BlueprintCallable)
 	void FinishEquipping();
+
+	/* Returns the next empty inventory slot to know where to play the highlight animation */
+	int32 GetEmptyInventorySlot();
+
+	/* Functions that use the highlight delegate to highlight and unlights the weapon slot */
+	void HighlightWeaponSlot();
+	
 
 public:	
 	// Called every frame
@@ -455,6 +463,13 @@ private:
 	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
 	FEquipItemDelegate EquipItemDelegate;
 
+	/* Delegate the allows inventory slot information to be sent directly to weapon slot widget to play the highlight animation */
+	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
+	FHighlightIconDelegate HighlightIconDelegate;
+
+	/* Slot that is currently being highlighted in the inventory */
+	int32 HighlightedSlot;
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
 	FORCEINLINE UCameraComponent* GetCamera() const { return Camera; }
@@ -494,4 +509,7 @@ public:
 
 	void StartPickupSoundTimer();
 	void StartEquipSoundTimer();
+
+	/* Stop highlighting weapon slot (public since it has to be called in item.cpp) */
+	void UnHighlightWeaponSlot();
 };

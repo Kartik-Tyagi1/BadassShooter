@@ -72,7 +72,9 @@ AShooterCharacter::AShooterCharacter() :
 	bShouldPlayPickupSound(true),
 	bShouldPlayEquipSound(true),
 	PickupSoundWaitDuration(0.1f),
-	EquipSoundWaitDuration(0.1f)
+	EquipSoundWaitDuration(0.1f),
+	// Iventory Property
+	HighlightedSlot(-1)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -534,11 +536,30 @@ void AShooterCharacter::TraceForItems()
 		if (ItemTraceResult.bBlockingHit)
 		{
 			TraceHitItem = Cast<AItem>(ItemTraceResult.Actor);
+			const auto TraceHitWeapon = Cast<AWeapon>(TraceHitItem);
 
 			// This is to prevent spamming of the TraceHitItem if it is already interping 
 			if (TraceHitItem && TraceHitItem->GetItemState() == EItemState::EIS_EquipInterping)
 			{
 				TraceHitItem = nullptr;
+			}
+
+			// Check if the traced item is a weapon and play the highlight animation
+			if (TraceHitWeapon)
+			{
+				// If there are no slots being highlighted then highlight the slot
+				if (HighlightedSlot == -1)
+				{
+					HighlightWeaponSlot();
+				}
+			}
+			else
+			{
+				// No weapon being traced and if a highlight is playing then turn it off
+				if (HighlightedSlot != -1)
+				{
+					UnHighlightWeaponSlot();
+				}
 			}
 
 			if (TraceHitItem && TraceHitItem->GetPickupWidget())
@@ -1113,4 +1134,35 @@ void AShooterCharacter::ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewI
 void AShooterCharacter::FinishEquipping()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
+}
+
+int32 AShooterCharacter::GetEmptyInventorySlot()
+{
+	for (int32 i = 0; i < Inventory.Num(); i++)
+	{
+		if (Inventory[i] == nullptr)
+		{
+			return i;
+		}
+	}
+
+	if (Inventory.Num() < INVENTORY_CAPACITY)
+	{
+		return Inventory.Num();
+	}
+
+	return -1; // Inventory is full
+}
+
+void AShooterCharacter::HighlightWeaponSlot()
+{
+	const int32 EmptySlot{ GetEmptyInventorySlot() };
+	HighlightIconDelegate.Broadcast(EmptySlot, true);
+	HighlightedSlot = EmptySlot;
+}
+
+void AShooterCharacter::UnHighlightWeaponSlot()
+{
+	HighlightIconDelegate.Broadcast(HighlightedSlot, false);
+	HighlightedSlot = -1;
 }

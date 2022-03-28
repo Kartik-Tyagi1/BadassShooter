@@ -121,6 +121,9 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 		if (ShooterCharacter)
 		{
 			ShooterCharacter->IncrementOverlappedItemCount(-1);
+
+			// There should be no highlighting when we stop the interping sphere but it stops anyway so we will look into this further if any errors pop up
+			// ShooterCharacterRef->UnHighlightWeaponSlot();
 		}
 
 		
@@ -342,6 +345,9 @@ void AItem::EndItemInterpTimer()
 	{
 		ShooterCharacterRef->GetPickupItem(this);
 		// SetItemState(EItemState::EIS_PickedUp); -----> No longer needed since item state is set in the shootercharacter GetPickupItem function
+
+		// Once the item it equipped it should not be highlighting that slot anymore
+		ShooterCharacterRef->UnHighlightWeaponSlot();
 	}
 	// Set Item back to normal scale
 	SetActorScale3D(FVector(1.f));
