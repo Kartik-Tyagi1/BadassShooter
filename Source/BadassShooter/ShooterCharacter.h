@@ -110,7 +110,7 @@ protected:
 	class AWeapon* SpawnDefaultWeapon();
 
 	/* Function to equip a weapon */
-	void EquipWeapon(AWeapon* WeaponToEquip);
+	void EquipWeapon(AWeapon* WeaponToEquip, bool bSwapping = false);
 
 	/* Function to drop currently equipped weapon */
 	void DropWeapon();
