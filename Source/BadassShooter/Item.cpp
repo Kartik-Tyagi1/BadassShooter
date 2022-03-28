@@ -15,7 +15,6 @@ AItem::AItem():
 	ItemName(FString("Default")),
 	ItemType(FString("Submachine Gun")),
 	ItemRarity(EItemRarity::EIR_Cool),
-	ItemRarityText(FString("Cool")),
 	ItemAmount(0),
 	ItemState(EItemState::EIS_Pickup),
 	// Item Interping Variables
@@ -36,7 +35,9 @@ AItem::AItem():
 	bCanChangeCustomDepth(true),
 	// Inventory
 	SlotIndex(0),
-	bInventoryIsFull(false)
+	bInventoryIsFull(false),
+	// Data Table
+	ItemRarityText(FString("Cool"))
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -141,29 +142,29 @@ void AItem::SetItemRarityAndStars()
 	switch (ItemRarity)
 	{
 	case EItemRarity::EIR_Lame:
-		ItemRarityText = FString("Lame");
+		//ItemRarityText = FString("Lame");
 		ActiveStars[4] = true;
 		break;
 	case EItemRarity::EIR_Okay:
-		ItemRarityText = FString("Okay");
+		//ItemRarityText = FString("Okay");
 		ActiveStars[4] = true;
 		ActiveStars[3] = true;
 		break;
 	case EItemRarity::EIR_Cool:
-		ItemRarityText = FString("Cool");
+		//ItemRarityText = FString("Cool");
 		ActiveStars[4] = true;
 		ActiveStars[3] = true;
 		ActiveStars[2] = true;
 		break;
 	case EItemRarity::EIR_Crazy:
-		ItemRarityText = FString("Crazy");
+		//ItemRarityText = FString("Crazy");
 		ActiveStars[4] = true;
 		ActiveStars[3] = true;
 		ActiveStars[2] = true;
 		ActiveStars[1] = true;
 		break;
 	case EItemRarity::EIR_Badass:
-		ItemRarityText = FString("Badass");
+		//ItemRarityText = FString("Badass");
 		ActiveStars[4] = true;
 		ActiveStars[3] = true;
 		ActiveStars[2] = true;
@@ -425,17 +426,7 @@ FVector AItem::GetInterpLocation()
 
 void AItem::OnConstruction(const FTransform& Transform)
 {
-	if (MaterialInstance)
-	{
-		// Construct dynamic material instance based on material instance
-		DynamicMaterialInstance = UMaterialInstanceDynamic::Create(MaterialInstance, this);
-
-		// Set the dynamic material instance to the mesh 
-		ItemMesh->SetMaterial(MaterialIndex, DynamicMaterialInstance);
-
-		// Turn on the glow material
-		EnableGlowMaterial();
-	}
+	
 
 	// Load data from Item Rarity Data Table
 
@@ -444,6 +435,55 @@ void AItem::OnConstruction(const FTransform& Transform)
 
 	// StaticLoadObject is like CreateDefaultSubobject which creates an object of a UCLASS
 	UDataTable* RarityTableObject = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *RarityTablePath));
+
+	if (RarityTableObject)
+	{
+		FItemRarityTable* RarityRow = nullptr;
+		switch (ItemRarity)
+		{
+		case EItemRarity::EIR_Lame:
+			RarityRow = RarityTableObject->FindRow<FItemRarityTable>(FName(TEXT("Lame")), TEXT(""));
+			break;
+		case EItemRarity::EIR_Okay:
+			RarityRow = RarityTableObject->FindRow<FItemRarityTable>(FName(TEXT("Okay")), TEXT(""));
+			break;
+		case EItemRarity::EIR_Cool:
+			RarityRow = RarityTableObject->FindRow<FItemRarityTable>(FName(TEXT("Cool")), TEXT(""));
+			break;
+		case EItemRarity::EIR_Crazy:
+			RarityRow = RarityTableObject->FindRow<FItemRarityTable>(FName(TEXT("Crazy")), TEXT(""));
+			break;
+		case EItemRarity::EIR_Badass:
+			RarityRow = RarityTableObject->FindRow<FItemRarityTable>(FName(TEXT("Badass")), TEXT(""));
+			break;
+		}
+
+		if (RarityRow)
+		{
+			GlowColor = RarityRow->GlowColor;
+			TextColor = RarityRow->TextColor;
+			NumberofStars = RarityRow->NumberofStars;
+			BackgroundImage = RarityRow->BackgroundIcon; // Will fix naming convention later
+			ItemRarityText = RarityRow->ItemRarityText;
+			if (GetItemMesh())
+			{
+				GetItemMesh()->SetCustomDepthStencilValue(RarityRow->CustomDepthStencilValue);
+			}
+		}
+	}
+
+	if (MaterialInstance)
+	{
+		// Construct dynamic material instance based on material instance
+		DynamicMaterialInstance = UMaterialInstanceDynamic::Create(MaterialInstance, this);
+		DynamicMaterialInstance->SetVectorParameterValue(FName(TEXT("FresnelColor")), GlowColor);
+
+		// Set the dynamic material instance to the mesh 
+		ItemMesh->SetMaterial(MaterialIndex, DynamicMaterialInstance);
+
+		// Turn on the glow material
+		EnableGlowMaterial();
+	}
 	
 }
 

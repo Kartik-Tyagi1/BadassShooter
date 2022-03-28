@@ -59,6 +59,9 @@ struct FItemRarityTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* BackgroundIcon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 CustomDepthStencilValue;
 };
 
 UCLASS()
@@ -148,10 +151,6 @@ private:
 	/* Rarity of the Item */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	EItemRarity ItemRarity;
-
-	/* Rarity Text of the Item */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	FString ItemRarityText;
 
 	/* Amount of the Item (i.e amount of ammo) -- THIS IS ALSO USED TO TRACK AMMO AMOUNT AND STUFF NOT ONLY FOR WIDGET */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
@@ -258,10 +257,6 @@ private:
 
 	/*--------------------------------------------------- Inventory --------------------------------------------------------*/
 
-	/* Background image for items in the inventory */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
-	UTexture2D* BackgroundImage;
-
 	/* Image of the item for items in the inventory */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
 	UTexture2D* ItemImage;
@@ -283,6 +278,23 @@ private:
 	/* Item Rarity DataTable */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 	class UDataTable* ItemRarityDataTable;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
+	FLinearColor GlowColor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
+	FLinearColor TextColor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
+	int32 NumberofStars;
+
+	/* Background image for items in the inventory */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
+	UTexture2D* BackgroundImage;
+
+	/* Rarity Text of the Item -> Used to display rarity on the widget */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
+	FString ItemRarityText;
 
 
 public:	
