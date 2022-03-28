@@ -546,6 +546,18 @@ void AShooterCharacter::TraceForItems()
 				// Show Item's Pickup Widget
 				TraceHitItem->GetPickupWidget()->SetVisibility(true);
 				TraceHitItem->EnableCustomDepth();
+
+				// When tracing for items we want to determine if the inventory is full and if it is display pickup or swap on the widget
+				// It makes sense to do it here since this is where we set the visibility for the pickup widget
+
+				if (Inventory.Num() >= INVENTORY_CAPACITY)
+				{
+					TraceHitItem->SetInventoryIsFull(true);
+				}
+				else
+				{
+					TraceHitItem->SetInventoryIsFull(false);
+				}
 			}
 
 			// We hit an AItem last frame

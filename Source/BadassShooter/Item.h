@@ -252,6 +252,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
 	int32 SlotIndex;
 
+	/* True when character inventory is full */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
+	bool bInventoryIsFull;
+
 public:	
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
@@ -274,6 +278,14 @@ public:
 
 	FORCEINLINE void SetCharacter(AShooterCharacter* Char) { ShooterCharacterRef = Char; }
 
+	FORCEINLINE void SetInventoryIsFull(bool bFull) { bInventoryIsFull = bFull; }
+
+	/* 
+	 * Force is a defualt variable so we can play the pickup/equip sound without limitation in certain cases
+	 * Like exchaning items in the inventory and spamming the pickup weapon 
+	 * 
+	 * The Regular limited version is still used when overlapping with ammo 
+	 */
 	void PlayPickupSound(bool bForcePlaySound = false);
 	void PlayEquipSound(bool bForcePlaySound = false);
 
