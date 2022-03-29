@@ -92,6 +92,25 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			GetItemMesh()->SetSkeletalMesh(WeaponRow->WeaponMesh);
 			SetItemTypeString(WeaponRow->WeaponName);
 			SetAmmoImage(WeaponRow->WeaponAmmoInventoryIcon);
+			SetMaterialInstance(WeaponRow->MaterialInstance);
+
+			PreviousMaterialIndex = GetMaterialIndex();
+			GetItemMesh()->SetMaterial(PreviousMaterialIndex, nullptr);
+			SetMaterialIndex(WeaponRow->MaterialIndex);
+		}
+
+		// The glow material is set on the item version but it needs to be overrided since we need different materials for each weapon
+		if (GetMaterialInstance())
+		{
+			// Construct dynamic material instance based on material instance
+			SetDynamicMaterialInstance(UMaterialInstanceDynamic::Create(GetMaterialInstance(), this));
+			GetDynamicMaterialInstance()->SetVectorParameterValue(FName(TEXT("FresnelColor")), GetGlowColor());
+
+			// Set the dynamic material instance to the mesh 
+			GetItemMesh()->SetMaterial(GetMaterialIndex(), GetDynamicMaterialInstance());
+			
+			// Turn on the glow material
+			EnableGlowMaterial();
 		}
 	}
 }

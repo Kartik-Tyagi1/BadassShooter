@@ -328,6 +328,17 @@ public:
 
 	FORCEINLINE void SetItemTypeString(FString Type) { ItemType = Type; }
 
+	FORCEINLINE UMaterialInstance* GetMaterialInstance() const { return MaterialInstance; }
+	FORCEINLINE void SetMaterialInstance(UMaterialInstance* Instance) { MaterialInstance = Instance; }
+
+	FORCEINLINE UMaterialInstanceDynamic* GetDynamicMaterialInstance() const { return DynamicMaterialInstance; }
+	FORCEINLINE void SetDynamicMaterialInstance(UMaterialInstanceDynamic* Instance) { DynamicMaterialInstance = Instance; }
+
+	FORCEINLINE int32 GetMaterialIndex() const { return MaterialIndex; }
+	FORCEINLINE void SetMaterialIndex(int32 MatIndex) { MaterialIndex = MatIndex; }
+
+	FORCEINLINE FLinearColor GetGlowColor() const { return GlowColor; }
+
 	/* 
 	 * Force is a defualt variable so we can play the pickup/equip sound without limitation in certain cases
 	 * Like exchaning items in the inventory and spamming the pickup weapon 
