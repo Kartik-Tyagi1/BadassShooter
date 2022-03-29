@@ -11,7 +11,7 @@
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
-	EWT_Pistol			UMETA(DisplayName = "Pistol"),
+	EWT_AR15			UMETA(DisplayName = "AR-15"),
 	EWT_AssaultRifle	UMETA(DisplayName = "AssaultRifle"),
 
 	EWT_MAX				UMETA(DisplayName = "DefaultMAX")
@@ -36,9 +36,6 @@ struct FWeaponDataTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USoundCue* EquipSound;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UWidgetComponent* PickupWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USkeletalMesh* WeaponMesh;
@@ -67,6 +64,8 @@ public:
 
 protected:
 	void StopFalling();
+
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 private:
 	FTimerHandle ThrowWeaponTimer;

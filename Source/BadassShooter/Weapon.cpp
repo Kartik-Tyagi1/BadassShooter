@@ -62,6 +62,40 @@ void AWeapon::StopFalling()
 	StartPulseTimer();
 }
 
+void AWeapon::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	const FString WeaponTablePath(TEXT("DataTable'/Game/_Game/DataTables/WeaponDataTable.WeaponDataTable'"));
+	UDataTable* WeaponTableObject = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *WeaponTablePath));
+
+	if (WeaponTableObject)
+	{
+		FWeaponDataTable* WeaponRow = nullptr;
+		switch (WeaponType)
+		{
+		case EWeaponType::EWT_AR15:
+			WeaponRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName(TEXT("AR15")), TEXT(""));
+			break;
+		case EWeaponType::EWT_AssaultRifle:
+			WeaponRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName(TEXT("AssaultRifle")), TEXT(""));
+			break;
+		}
+
+		if (WeaponRow)
+		{
+			AmmoType = WeaponRow->AmmoType;
+			AmmoInMagazine = WeaponRow->WeaponAmmo;
+			MaximumMagazineCapacity = WeaponRow->MagazineCapacity;
+			SetPickupSound(WeaponRow->PickupSound);
+			SetEquipSound(WeaponRow->EquipSound);
+			SetItemImage(WeaponRow->WeaponInventoryIcon);
+			GetItemMesh()->SetSkeletalMesh(WeaponRow->WeaponMesh);
+			SetItemTypeString(WeaponRow->WeaponName);
+			SetAmmoImage(WeaponRow->WeaponAmmoInventoryIcon);
+		}
+	}
+}
+
 void AWeapon::DecrementAmmo()
 {
 	if (AmmoInMagazine - 1 <= 0)

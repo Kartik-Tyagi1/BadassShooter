@@ -431,7 +431,7 @@ void AItem::OnConstruction(const FTransform& Transform)
 	// Load data from Item Rarity Data Table
 
 	// Path to ItemRarityDataTable
-	FString RarityTablePath(TEXT("DataTable'/Game/_Game/DataTables/ItemRarityDataTable.ItemRarityDataTable'"));
+	const FString RarityTablePath(TEXT("DataTable'/Game/_Game/DataTables/ItemRarityDataTable.ItemRarityDataTable'"));
 
 	// StaticLoadObject is like CreateDefaultSubobject which creates an object of a UCLASS
 	UDataTable* RarityTableObject = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *RarityTablePath));

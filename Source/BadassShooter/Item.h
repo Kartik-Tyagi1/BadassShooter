@@ -311,6 +311,8 @@ public:
 
 	FORCEINLINE USoundCue* GetPickupSound() const { return PickupSound; }
 	FORCEINLINE USoundCue* GetEquipSound() const { return EquipSound; }
+	FORCEINLINE void SetPickupSound(USoundCue* Sound) { PickupSound = Sound; }
+	FORCEINLINE void SetEquipSound(USoundCue* Sound) { EquipSound = Sound; }
 
 	FORCEINLINE int32 GetItemAmount() const { return ItemAmount; }
 
@@ -320,6 +322,11 @@ public:
 	FORCEINLINE void SetCharacter(AShooterCharacter* Char) { ShooterCharacterRef = Char; }
 
 	FORCEINLINE void SetInventoryIsFull(bool bFull) { bInventoryIsFull = bFull; }
+
+	FORCEINLINE void SetItemImage(UTexture2D* Image) { ItemImage = Image; }
+	FORCEINLINE void SetAmmoImage(UTexture2D* Image) { AmmoImage = Image; }
+
+	FORCEINLINE void SetItemTypeString(FString Type) { ItemType = Type; }
 
 	/* 
 	 * Force is a defualt variable so we can play the pickup/equip sound without limitation in certain cases
