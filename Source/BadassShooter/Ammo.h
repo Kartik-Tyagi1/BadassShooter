@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Item.h"
+#include "AmmoType.h"
 #include "Ammo.generated.h"
 
 /**
@@ -21,9 +22,37 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void SetItemProperties(EItemState State) override;
+
+	UFUNCTION()
+	void AmmoCollisionSphereOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Ammo, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* AmmoMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, meta = (AllowPrivateAccess = "true"))
+	EAmmoType AmmoType;
+
+	/* Texture used on ammo pickup widget */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, meta = (AllowPrivateAccess = "true"))
+	UTexture2D* AmmoIconTexture;
+
+	/* Collison sphere for automatic ammo pickup */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, meta = (AllowPrivateAccess = "true"))
+	USphereComponent* AmmoCollisionSphere;
+
+public:
+	FORCEINLINE UStaticMeshComponent* GetAmmoMesh() const { return AmmoMesh; }
+	EAmmoType GetAmmoType() const { return AmmoType; }
+
+	virtual void EnableCustomDepth() override;
+	virtual void DisableCustomDepth() override;
 	
 };

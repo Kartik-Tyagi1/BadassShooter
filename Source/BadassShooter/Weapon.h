@@ -5,15 +5,55 @@
 #include "CoreMinimal.h"
 #include "Item.h"
 #include "AmmoType.h"
+#include "Engine/DataTable.h"
 #include "Weapon.generated.h"
 
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
-	EWT_Pistol			UMETA(DisplayName = "Pistol"),
+	EWT_AR15			UMETA(DisplayName = "AR-15"),
 	EWT_AssaultRifle	UMETA(DisplayName = "AssaultRifle"),
 
 	EWT_MAX				UMETA(DisplayName = "DefaultMAX")
+};
+
+USTRUCT(BlueprintType)
+struct FWeaponDataTable : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EAmmoType AmmoType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 WeaponAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MagazineCapacity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USoundCue* PickupSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USoundCue* EquipSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMesh* WeaponMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString WeaponName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* WeaponInventoryIcon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* WeaponAmmoInventoryIcon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMaterialInstance* MaterialInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MaterialIndex;
 };
 
 /**
@@ -30,6 +70,8 @@ public:
 
 protected:
 	void StopFalling();
+
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 private:
 	FTimerHandle ThrowWeaponTimer;
@@ -72,6 +114,13 @@ private:
 	/* Boolean to set if the weapon magazine is moving */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	bool bIsMagMoving;
+
+	/* Datatable that hold properties of weapons */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	UDataTable* WeaponDataTable;
+
+	/* Used to clear the material index when switching weapon types */
+	int32 PreviousMaterialIndex;
 
 public:
 	void ThrowWeapon();

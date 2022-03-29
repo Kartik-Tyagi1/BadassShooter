@@ -51,12 +51,68 @@ void AWeapon::ThrowWeapon()
 	bIsFalling = true;
 
 	GetWorldTimerManager().SetTimer(ThrowWeaponTimer, this, &AWeapon::StopFalling, ThrowWeaponTime);
+
+	EnableGlowMaterial();
 }
 
 void AWeapon::StopFalling()
 {
 	bIsFalling = false;
 	SetItemState(EItemState::EIS_Pickup);
+	StartPulseTimer();
+}
+
+void AWeapon::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	const FString WeaponTablePath(TEXT("DataTable'/Game/_Game/DataTables/WeaponDataTable.WeaponDataTable'"));
+	UDataTable* WeaponTableObject = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *WeaponTablePath));
+
+	if (WeaponTableObject)
+	{
+		FWeaponDataTable* WeaponRow = nullptr;
+		switch (WeaponType)
+		{
+		case EWeaponType::EWT_AR15:
+			WeaponRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName(TEXT("AR15")), TEXT(""));
+			break;
+		case EWeaponType::EWT_AssaultRifle:
+			WeaponRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName(TEXT("AssaultRifle")), TEXT(""));
+			break;
+		}
+
+		if (WeaponRow)
+		{
+			AmmoType = WeaponRow->AmmoType;
+			AmmoInMagazine = WeaponRow->WeaponAmmo;
+			MaximumMagazineCapacity = WeaponRow->MagazineCapacity;
+			SetPickupSound(WeaponRow->PickupSound);
+			SetEquipSound(WeaponRow->EquipSound);
+			SetItemImage(WeaponRow->WeaponInventoryIcon);
+			GetItemMesh()->SetSkeletalMesh(WeaponRow->WeaponMesh);
+			SetItemTypeString(WeaponRow->WeaponName);
+			SetAmmoImage(WeaponRow->WeaponAmmoInventoryIcon);
+			SetMaterialInstance(WeaponRow->MaterialInstance);
+
+			PreviousMaterialIndex = GetMaterialIndex();
+			GetItemMesh()->SetMaterial(PreviousMaterialIndex, nullptr);
+			SetMaterialIndex(WeaponRow->MaterialIndex);
+		}
+
+		// The glow material is set on the item version but it needs to be overrided since we need different materials for each weapon
+		if (GetMaterialInstance())
+		{
+			// Construct dynamic material instance based on material instance
+			SetDynamicMaterialInstance(UMaterialInstanceDynamic::Create(GetMaterialInstance(), this));
+			GetDynamicMaterialInstance()->SetVectorParameterValue(FName(TEXT("FresnelColor")), GetGlowColor());
+
+			// Set the dynamic material instance to the mesh 
+			GetItemMesh()->SetMaterial(GetMaterialIndex(), GetDynamicMaterialInstance());
+			
+			// Turn on the glow material
+			EnableGlowMaterial();
+		}
+	}
 }
 
 void AWeapon::DecrementAmmo()

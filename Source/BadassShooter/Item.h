@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/DataTable.h"
 #include "Item.generated.h"
 
 UENUM(BlueprintType)
@@ -28,6 +29,39 @@ enum class EItemState : uint8
 	EIS_Falling			UMETA(DisplayName = "Falling"),
 
 	EIS_MAX UMETA(DisplayName = "DefaultMax")
+};
+
+UENUM(BlueprintType)
+enum class EItemType : uint8
+{
+	EIT_Ammo	UMETA(DisplayName = "Ammo"),
+	EIT_Weapon	UMETA(DisplayName = "Weapon"),
+
+	EIT_MAX		UMETA(DisplayName = "DefaultMAX")
+};
+
+USTRUCT(BlueprintType)
+struct FItemRarityTable : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FLinearColor GlowColor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FLinearColor TextColor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString ItemRarityText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 NumberofStars;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* BackgroundIcon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 CustomDepthStencilValue;
 };
 
 UCLASS()
@@ -66,13 +100,25 @@ protected:
 	void SetItemRarityAndStars();
 
 	/* Set properties of the item based on the state*/
-	void SetItemProperties(EItemState State);
+	virtual void SetItemProperties(EItemState State);
 
 	/* Call back function to finish interping after the interping timer is done */
 	void EndItemInterpTimer();
 
 	/* Function to handle the item interpolation when picking up and item */
 	void InterpolateItemLocation(float DeltaTime);
+
+	/* Function to determine item interp location from shooter character InterpLocations array */
+	FVector GetInterpLocation();
+
+	/* C++ verison of construction strip in blueprint, called when item is changed or moved */
+	virtual void OnConstruction(const FTransform& Transform) override;
+
+	/* Pulse Effect Functions */
+	void StartPulseTimer();
+	void ResetPulseTimer();
+	void UpdatePulseParameters();
+
 
 private:
 
@@ -88,6 +134,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* AreaSphere;
 
+	/*------------------------------------------- END WIDGET SECTIONS -----------------------------------------------------*/
+
 	/* Pickup widget for the item */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* PickupWidget;
@@ -96,25 +144,23 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	FString ItemName;
 
-	/* Name of the Item */
+	/* Type of the Item */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	FString ItemType;
 
-	/* Name of the Item */
+	/* Rarity of the Item */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	EItemRarity ItemRarity;
 
-	/* Name of the Item */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	FString ItemRarityText;
-
-	/* Name of the Item */
+	/* Amount of the Item (i.e amount of ammo) -- THIS IS ALSO USED TO TRACK AMMO AMOUNT AND STUFF NOT ONLY FOR WIDGET */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	int32 ItemAmount;
 
 	/* Array that holds booleans for amount of stars shown in widget */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	TArray<bool> ActiveStars;
+
+	/*------------------------------------------- END WIDGET SECTIONS -----------------------------------------------------*/
 
 	/* State of the item (on ground, equppied etc.) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
@@ -159,6 +205,97 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	USoundCue* EquipSound;
 
+	/*------------------------------------------- Item Interpolation -----------------------------------------------------*/
+
+	/* Item type that is being picked up */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	EItemType ItemPickupType;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	int32 InterpLocationIndex;
+
+	/*---------------------------------------------- Item Materials -----------------------------------------------------*/
+
+	/* Material index on item that we want to set */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	int32 MaterialIndex;
+
+	/* Dynamic material instance that can be set/changed during runtime (thats why its dynamic) */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UMaterialInstanceDynamic* DynamicMaterialInstance;
+
+	/* The material instance the dynamic material instance refers to */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UMaterialInstance* MaterialInstance;
+
+	/* Curve that hold that values of the dynamic material instance */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	class UCurveVector* PulseCurve;
+
+	/* Curve that hold that values of the dynamic material instance */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UCurveVector* InterpPulseCurve;
+
+	/* Timer Handle that controls the pulse effect */
+	FTimerHandle PulseTimer;
+
+	float PulseDuration;
+
+	UPROPERTY(EditAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float GlowBlendAlpha;
+
+	UPROPERTY(EditAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float FresnelExponent;
+
+	UPROPERTY(EditAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float FrenselReflectionFraction;
+
+
+	/*----------------------------------- Custom Depth (related to public section) --------------------------------------------*/
+
+	bool bCanChangeCustomDepth;
+
+	/*--------------------------------------------------- Inventory --------------------------------------------------------*/
+
+	/* Image of the item for items in the inventory */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
+	UTexture2D* ItemImage;
+
+	/* Image of the Ammo Icon for items in the inventory */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
+	UTexture2D* AmmoImage;
+
+	/* The index in the inventory array (shootercharacter.h) where this weapon is stored */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
+	int32 SlotIndex;
+
+	/* True when character inventory is full */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
+	bool bInventoryIsFull;
+
+	/*--------------------------------------------------- Data Table --------------------------------------------------------*/
+
+	/* Item Rarity DataTable */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	class UDataTable* ItemRarityDataTable;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
+	FLinearColor GlowColor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
+	FLinearColor TextColor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
+	int32 NumberofStars;
+
+	/* Background image for items in the inventory */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
+	UTexture2D* BackgroundImage;
+
+	/* Rarity Text of the Item -> Used to display rarity on the widget */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
+	FString ItemRarityText;
+
 
 public:	
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
@@ -170,10 +307,54 @@ public:
 
 	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const { return ItemMesh; }
 
-	void StartItemCurveInterpTimer(AShooterCharacter* Character);
+	void StartItemCurveInterpTimer(AShooterCharacter* Character, bool bForcePlaySound = false);
 
 	FORCEINLINE USoundCue* GetPickupSound() const { return PickupSound; }
 	FORCEINLINE USoundCue* GetEquipSound() const { return EquipSound; }
+	FORCEINLINE void SetPickupSound(USoundCue* Sound) { PickupSound = Sound; }
+	FORCEINLINE void SetEquipSound(USoundCue* Sound) { EquipSound = Sound; }
+
+	FORCEINLINE int32 GetItemAmount() const { return ItemAmount; }
+
+	FORCEINLINE int32 GetSlotIndex() const { return SlotIndex; }
+	FORCEINLINE void SetSlotIndex(int32 Index) { SlotIndex = Index; }
+
+	FORCEINLINE void SetCharacter(AShooterCharacter* Char) { ShooterCharacterRef = Char; }
+
+	FORCEINLINE void SetInventoryIsFull(bool bFull) { bInventoryIsFull = bFull; }
+
+	FORCEINLINE void SetItemImage(UTexture2D* Image) { ItemImage = Image; }
+	FORCEINLINE void SetAmmoImage(UTexture2D* Image) { AmmoImage = Image; }
+
+	FORCEINLINE void SetItemTypeString(FString Type) { ItemType = Type; }
+
+	FORCEINLINE UMaterialInstance* GetMaterialInstance() const { return MaterialInstance; }
+	FORCEINLINE void SetMaterialInstance(UMaterialInstance* Instance) { MaterialInstance = Instance; }
+
+	FORCEINLINE UMaterialInstanceDynamic* GetDynamicMaterialInstance() const { return DynamicMaterialInstance; }
+	FORCEINLINE void SetDynamicMaterialInstance(UMaterialInstanceDynamic* Instance) { DynamicMaterialInstance = Instance; }
+
+	FORCEINLINE int32 GetMaterialIndex() const { return MaterialIndex; }
+	FORCEINLINE void SetMaterialIndex(int32 MatIndex) { MaterialIndex = MatIndex; }
+
+	FORCEINLINE FLinearColor GetGlowColor() const { return GlowColor; }
+
+	/* 
+	 * Force is a defualt variable so we can play the pickup/equip sound without limitation in certain cases
+	 * Like exchaning items in the inventory and spamming the pickup weapon 
+	 * 
+	 * The Regular limited version is still used when overlapping with ammo 
+	 */
+	void PlayPickupSound(bool bForcePlaySound = false);
+	void PlayEquipSound(bool bForcePlaySound = false);
+
+	virtual void EnableCustomDepth();
+	virtual void DisableCustomDepth();
+	void InitializeCustomDepth();
+
+	/* Enable and disable glow material */
+	void EnableGlowMaterial();
+	void DisableGlowMaterial();
 
 	
 };

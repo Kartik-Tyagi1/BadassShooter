@@ -15,10 +15,29 @@ enum class ECombatState : uint8
 	ECS_Unoccupied				UMETA(DisplayName = "Unoccupied"),
 	ECS_FireTImerInProgress		UMETA(DisplayName = "FireTImerInProgress"),
 	ECS_Reloading				UMETA(DisplayName = "Reloading"),
+	ECS_Equipping				UMETA(DisplayName = "Equipping"),
 
 	ECS_MAX						UMETA(DisplayName = "DefaultMAX")
 
 };
+
+USTRUCT(BlueprintType) 
+struct FInterpLocation
+{
+	GENERATED_BODY()
+	
+	/* Location to where item will interp to*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USceneComponent* SceneComponent;
+
+	/* Number of items interping to the above location */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 ItemCount;
+		
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEquipItemDelegate, int32, CurrentSlotIndex, int32, NewSlotIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHighlightIconDelegate, int32, SlotIndex, bool, bPlayIconAnimation);
 
 UCLASS()
 class BADASSSHOOTER_API AShooterCharacter : public ACharacter
@@ -92,13 +111,14 @@ protected:
 	class AWeapon* SpawnDefaultWeapon();
 
 	/* Function to equip a weapon */
-	void EquipWeapon(AWeapon* WeaponToEquip);
+	void EquipWeapon(AWeapon* WeaponToEquip, bool bSwapping = false);
 
 	/* Function to drop currently equipped weapon */
 	void DropWeapon();
 
-	/* Function to swap weapons */
+	/* Item Pickup Functions */
 	void SwapWeapon(AWeapon* WeaponToSwap);
+	void PickupAmmo(class AAmmo* Ammo);
 
 	/* Sets up inital ammo in the ammo map */
 	void InitalizeAmmoMap();
@@ -138,6 +158,30 @@ protected:
 	/* Function for Capsult Half Height Interpolation */
 	void InterpCapsuleHalfHeight(float DeltaTime);
 
+	/* Intialize the Interp Location array */
+	void InitializeInterpLocations();
+
+	/* Functions to select weapon from inventory */
+	void FKeyPressed();
+	void OneKeyPressed();
+	void TwoKeyPressed();
+	void ThreeKeyPressed();
+	void FourKeyPressed();
+	void FiveKeyPressed();
+	
+	/* Function that changes selected item in the inventory */
+	void ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewItemIndex);
+
+	/* Finish Equipping Function (Called with anim notify in blueprint) */
+	UFUNCTION(BlueprintCallable)
+	void FinishEquipping();
+
+	/* Returns the next empty inventory slot to know where to play the highlight animation */
+	int32 GetEmptyInventorySlot();
+
+	/* Functions that use the highlight delegate to highlight and unlights the weapon slot */
+	void HighlightWeaponSlot();
+	
 
 public:	
 	// Called every frame
@@ -251,7 +295,7 @@ private:
 	bool bFiringBullet;
 	FTimerHandle CrosshairShootTimer;
 
-	/*--------------------------------- WEAPON FIRE AND RELOADING  --------------------------------------------------------*/
+	/*--------------------------------- WEAPON FIRE, RELOADING, EQUIPPING --------------------------------------------------------*/
 
 	/* Combat state of the character (determines if player and shoot/reload) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -273,6 +317,10 @@ private:
 	bool bIsInCombatPose;
 
 	bool bAimingButtonPressed;
+
+	/* Equip Weapon Animation */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* EquipMontage;
 
 	/*--------------------------------- THE WEAPON AND TRACING FOR ITEMS --------------------------------------------------------*/
 
@@ -358,6 +406,69 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float CrouchingGroundFriction;
 
+	/*------------------------------------------------- Pickup Interpolation -------------------------------------------------------------*/
+
+	/* Interpolation Locations for Pickups */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* WeaponInterpComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_2;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_3;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_4;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_5;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* InterpComp_6;
+
+	/* Array of interp location */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	TArray<FInterpLocation> InterpLocations;
+
+	/*------------------------------------------------- Pickup Interpolation Sound Limitations -----------------------------------------------------*/
+
+	FTimerHandle PickupSoundTimer;
+	FTimerHandle EquipSoundTimer;
+
+	bool bShouldPlayPickupSound;
+	bool bShouldPlayEquipSound;
+
+	void EndPickupSoundTimer();
+	void EndEquipSoundTimer();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	float PickupSoundWaitDuration;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	float EquipSoundWaitDuration;
+
+	/*------------------------------------------------------------ Inventory -----------------------------------------------------------------*/
+
+	/* Array to hold the inventory items */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
+	TArray<AItem*> Inventory;
+
+	const int32 INVENTORY_CAPACITY{ 6 };
+
+	/* Delegate the allows inventory slot information to be sent directly to InventoryBar Widget when equipping */
+	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
+	FEquipItemDelegate EquipItemDelegate;
+
+	/* Delegate the allows inventory slot information to be sent directly to weapon slot widget to play the highlight animation */
+	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
+	FHighlightIconDelegate HighlightIconDelegate;
+
+	/* Slot that is currently being highlighted in the inventory */
+	int32 HighlightedSlot;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
@@ -383,4 +494,22 @@ public:
 	FORCEINLINE bool GetIsInCombatPose() const { return bIsInCombatPose; } // Blueprint callable because it is used in crosshair HUD
 
 	FORCEINLINE bool GetIsCrouching() const { return bIsCrouching; }
+
+	/* Returns the InterpLocation in the InterpLocations array */
+	FInterpLocation GetInterpLocation(int32 index);
+	
+	/* Returns the index of the InterpLocation with the lowest Item Count*/
+	int32 GetInterpLocationsLowestItemIndex();
+
+	/* Increments the item count of the InterpLocation being used when interping */
+	void IncrementInterpLocationsItemCount(int32 Index, int32 Amount);
+
+	FORCEINLINE bool ShouldPlayPickupSound() const { return bShouldPlayPickupSound; }
+	FORCEINLINE bool ShouldPlayEquipSound() const { return bShouldPlayEquipSound; }
+
+	void StartPickupSoundTimer();
+	void StartEquipSoundTimer();
+
+	/* Stop highlighting weapon slot (public since it has to be called in item.cpp) */
+	void UnHighlightWeaponSlot();
 };
