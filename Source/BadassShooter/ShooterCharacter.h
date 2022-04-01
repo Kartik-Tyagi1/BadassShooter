@@ -512,4 +512,6 @@ public:
 
 	/* Stop highlighting weapon slot (public since it has to be called in item.cpp) */
 	void UnHighlightWeaponSlot();
+
+	FORCEINLINE AWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
 };

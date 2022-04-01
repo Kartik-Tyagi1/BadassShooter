@@ -45,7 +45,7 @@ AShooterCharacter::AShooterCharacter() :
 	CombatState(ECombatState::ECS_Unoccupied),
 	bFireButtonPressed(false),
 	AutomaticFireDuration(0.1f),
-	bIsInCombatPose(false),
+	bIsInCombatPose(true),
 	bAimingButtonPressed(false),
 	// Item trace variables
 	bShouldTraceForItems(false),
