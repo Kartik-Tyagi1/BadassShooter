@@ -123,4 +123,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	EWeaponType EquippedWeaponType;
 
+	/* Is true when combat state is Unoccupied or FireTimerInProgress */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	bool bShouldUseFABRIK;
+
 };

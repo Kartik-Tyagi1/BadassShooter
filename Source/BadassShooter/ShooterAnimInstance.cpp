@@ -33,7 +33,9 @@ UShooterAnimInstance::UShooterAnimInstance() :
 	LeanYawDelta(0.f),
 	// Recoil Variables
 	RecoilWeight(0.f),
-	bIsTurning(false)
+	bIsTurning(false),
+	EquippedWeaponType(EWeaponType::EWT_AssaultRifle),
+	bShouldUseFABRIK(false)
 {}
 
 void UShooterAnimInstance::NativeInitializeAnimation()
@@ -49,6 +51,7 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 	}
 	if (ShooterCharacter)
 	{
+		// Determine if crouching
 		bIsCrouching = ShooterCharacter->GetIsCrouching();
 
 		// Determine if reloading
@@ -56,6 +59,9 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 
 		// Determine if Equipping
 		bIsEquipping = ShooterCharacter->GetCombatState() == ECombatState::ECS_Equipping;
+
+		// Determine if FABRIK nodes should be used
+		bShouldUseFABRIK = ShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied || ShooterCharacter->GetCombatState() == ECombatState::ECS_FireTImerInProgress;
 
 		// Determine MovementSpeed 
 		FVector Velocity = ShooterCharacter->GetCharacterMovement()->Velocity;
