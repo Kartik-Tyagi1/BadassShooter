@@ -97,6 +97,9 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			PreviousMaterialIndex = GetMaterialIndex();
 			GetItemMesh()->SetMaterial(PreviousMaterialIndex, nullptr);
 			SetMaterialIndex(WeaponRow->MaterialIndex);
+
+			WeaponMagBoneName = WeaponRow->WeaponMagBoneName;
+			ReloadMontageSectionName = WeaponRow->ReloadMontageSectionName;
 		}
 
 		// The glow material is set on the item version but it needs to be overrided since we need different materials for each weapon
