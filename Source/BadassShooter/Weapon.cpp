@@ -102,6 +102,12 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			ReloadMontageSectionName = WeaponRow->ReloadMontageSectionName;
 
 			GetItemMesh()->SetAnimInstanceClass(WeaponRow->AnimBP);
+
+			CrosshairMiddle = WeaponRow->CrosshairMiddle;
+			CrosshairLeft = WeaponRow->CrosshairLeft;
+			CrosshairRight = WeaponRow->CrosshairRight;
+			CrosshairTop = WeaponRow->CrosshairTop;
+			CrosshairBottom = WeaponRow->CrosshairBottom;
 		}
 
 		// The glow material is set on the item version but it needs to be overrided since we need different materials for each weapon
