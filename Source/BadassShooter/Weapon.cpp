@@ -79,6 +79,9 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		case EWeaponType::EWT_AssaultRifle:
 			WeaponRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName(TEXT("AssaultRifle")), TEXT(""));
 			break;
+		case EWeaponType::EWT_Pistol:
+			WeaponRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName(TEXT("Pistol")), TEXT(""));
+			break;
 		}
 
 		if (WeaponRow)
