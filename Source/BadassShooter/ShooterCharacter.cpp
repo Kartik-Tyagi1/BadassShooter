@@ -44,7 +44,6 @@ AShooterCharacter::AShooterCharacter() :
 	// Automatic Fire Variables
 	CombatState(ECombatState::ECS_Unoccupied),
 	bFireButtonPressed(false),
-	AutomaticFireDuration(0.1f),
 	bIsInCombatPose(true),
 	bAimingButtonPressed(false),
 	// Item trace variables
@@ -421,7 +420,7 @@ void AShooterCharacter::FireButtonReleased()
 void AShooterCharacter::StartAutoFireTimer()
 {
 	CombatState = ECombatState::ECS_FireTImerInProgress;
-	GetWorldTimerManager().SetTimer(FireTimer, this, &AShooterCharacter::AutoFireTimerReset, AutomaticFireDuration);
+	GetWorldTimerManager().SetTimer(FireTimer, this, &AShooterCharacter::AutoFireTimerReset, EquippedWeapon->GetAutomaticFireRate());
 }
 
 void AShooterCharacter::AutoFireTimerReset()
@@ -622,9 +621,9 @@ void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount)
 void AShooterCharacter::PlayFireSound()
 {
 	// Play Weapon Fire Sound
-	if (FireSound)
+	if (EquippedWeapon->GetFireSound())
 	{
-		UGameplayStatics::PlaySound2D(this, FireSound);
+		UGameplayStatics::PlaySound2D(this, EquippedWeapon->GetFireSound());
 	}
 }
 
@@ -636,9 +635,9 @@ void AShooterCharacter::SendBullet()
 	if (BarrelSocket_1)
 	{
 		FTransform BarrelSocketTransform_1 = BarrelSocket_1->GetSocketTransform(EquippedWeapon->GetItemMesh());
-		if (MuzzleFlash)
+		if (EquippedWeapon->GetMuzzleFlash())
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, BarrelSocketTransform_1);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EquippedWeapon->GetMuzzleFlash(), BarrelSocketTransform_1);
 		}
 
 		FVector BeamEnd_1;

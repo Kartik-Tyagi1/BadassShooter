@@ -108,6 +108,10 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			CrosshairRight = WeaponRow->CrosshairRight;
 			CrosshairTop = WeaponRow->CrosshairTop;
 			CrosshairBottom = WeaponRow->CrosshairBottom;
+
+			AutomaticFireRate = WeaponRow->AutomaticFireRate;
+			MuzzleFlash = WeaponRow->MuzzleFlash;
+			FireSound = WeaponRow->FireSound;
 		}
 
 		// The glow material is set on the item version but it needs to be overrided since we need different materials for each weapon

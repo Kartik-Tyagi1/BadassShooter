@@ -228,15 +228,6 @@ private:
 
 	/*--------------------------------- WEAPON FIRE ------------------------------------------------------------*/
 
-
-	/* Sound Cue for the Defualt Revolver*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-	class USoundCue* FireSound;
-
-	/* Muzzle Flash at the Barrel of right weapon or main rifle */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-	class UParticleSystem* MuzzleFlash;
-
 	/* Montage for firing weapon from the hip */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* HipFireMontage;
@@ -303,9 +294,6 @@ private:
 
 	/* Boolean for if the player is pressing the fire button */
 	bool bFireButtonPressed;
-
-	/* Duration between each bullet fire */
-	float AutomaticFireDuration;
 
 	FTimerHandle FireTimer;
 
