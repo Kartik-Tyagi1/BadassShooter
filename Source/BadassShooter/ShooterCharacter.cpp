@@ -453,6 +453,11 @@ void AShooterCharacter::FireWeapon()
 		EquippedWeapon->DecrementAmmo();
 		StartCrosshairShootTimer();
 		StartAutoFireTimer();
+
+		if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Pistol)
+		{
+			EquippedWeapon->StartPistolSlideTimer();
+		}
 	}
 }
 

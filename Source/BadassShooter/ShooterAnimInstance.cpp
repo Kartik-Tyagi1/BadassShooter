@@ -206,7 +206,7 @@ void UShooterAnimInstance::TurnInPlace()
 			}
 			else
 			{
-				RecoilWeight = 0.2f;
+				RecoilWeight = 0.1f;
 			}
 		}
 	}

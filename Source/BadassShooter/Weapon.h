@@ -99,6 +99,10 @@ protected:
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 
+	void FinishPistolSlideTimer();
+
+	void UpdateSlideDisplacement();
+
 private:
 	FTimerHandle ThrowWeaponTimer;
 
@@ -148,6 +152,7 @@ private:
 	/* Used to clear the material index when switching weapon types */
 	int32 PreviousMaterialIndex;
 
+	/* The Following are datatables values */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 	UTexture2D* CrosshairMiddle;
 
@@ -172,6 +177,33 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 	USoundCue* FireSound;
 
+	/* The amount the slide has displaced when firing the pistol */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	float PistolSlideDisplacement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	float PistolRecoilRotation;
+
+	/* Curve for how we want to make the pistol slide move */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	UCurveFloat* PistolSlideDisplacementCurve;
+
+	FTimerHandle PistolSlideTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	float PistolSlideDuration;
+
+	bool bPistolSlideMoving;
+
+	/* Scale factor for the pistol slide displacement */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	float MaxPistolSlideDisplacement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	float MaxPistolRecoilRotation;
+
+
+
 public:
 	void ThrowWeapon();
 
@@ -195,5 +227,7 @@ public:
 	FORCEINLINE float GetAutomaticFireRate() const { return AutomaticFireRate; }
 	FORCEINLINE UParticleSystem* GetMuzzleFlash() const { return MuzzleFlash; }
 	FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
+
+	void StartPistolSlideTimer();
 	
 };

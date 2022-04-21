@@ -15,7 +15,14 @@ AWeapon::AWeapon() :
 	AmmoType(EAmmoType::EAT_AR),
 	ReloadMontageSectionName(FName(TEXT("Reload_AssaultRifle"))),
 	WeaponMagBoneName(FName(TEXT("Clip_Bone"))),
-	bIsMagMoving(false)
+	bIsMagMoving(false),
+	PistolSlideDisplacement(0.f),
+	PistolRecoilRotation(0.f),
+	PistolSlideDuration(0.2f),
+	bPistolSlideMoving(false),
+	MaxPistolSlideDisplacement(4.f),
+	MaxPistolRecoilRotation(20.f)
+
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -30,6 +37,9 @@ void AWeapon::Tick(float DeltaTime)
 		const FRotator MeshRotation{ 0.f, GetItemMesh()->GetComponentRotation().Yaw, 0.f };
 		GetItemMesh()->SetWorldRotation(MeshRotation, false, nullptr, ETeleportType::TeleportPhysics);
 	}
+
+	// Update Slide Bone on Pistol when firing pistol
+	UpdateSlideDisplacement();
 }
 
 void AWeapon::ThrowWeapon()
@@ -133,6 +143,7 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 	}
 }
 
+
 void AWeapon::DecrementAmmo()
 {
 	if (AmmoInMagazine - 1 <= 0)
@@ -161,5 +172,27 @@ void AWeapon::UpdateAmmo(int32 Amount)
 bool AWeapon::ClipIsFull()
 {
 	return AmmoInMagazine >= MaximumMagazineCapacity;
+}
+
+void AWeapon::StartPistolSlideTimer()
+{
+	bPistolSlideMoving = true;
+	GetWorldTimerManager().SetTimer(PistolSlideTimer, this, &AWeapon::FinishPistolSlideTimer, PistolSlideDuration);
+}
+
+void AWeapon::FinishPistolSlideTimer()
+{
+	bPistolSlideMoving = false;
+}
+
+void AWeapon::UpdateSlideDisplacement()
+{
+	if (PistolSlideDisplacementCurve && bPistolSlideMoving)
+	{
+		const float ElapsedTime{ GetWorldTimerManager().GetTimerElapsed(PistolSlideTimer) };
+		const float CurveValue{ PistolSlideDisplacementCurve->GetFloatValue(ElapsedTime) };
+		PistolSlideDisplacement = CurveValue * MaxPistolSlideDisplacement;
+		PistolRecoilRotation = CurveValue * MaxPistolRecoilRotation;
+	}
 }
 
