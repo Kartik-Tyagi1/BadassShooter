@@ -80,6 +80,9 @@ struct FWeaponDataTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USoundCue* FireSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsAutomatic;
 };
 
 /**
@@ -202,6 +205,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
 	float MaxPistolRecoilRotation;
 
+	/* Boolean to determine if the weapon shoudl be an automatic fire Weapon */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	bool bIsAutomatic;
 
 
 public:
@@ -229,5 +235,7 @@ public:
 	FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
 
 	void StartPistolSlideTimer();
+
+	FORCEINLINE bool GetIsAutomatic() const { return bIsAutomatic; }
 	
 };

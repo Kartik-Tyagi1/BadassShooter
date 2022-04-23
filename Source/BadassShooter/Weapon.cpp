@@ -21,8 +21,8 @@ AWeapon::AWeapon() :
 	PistolSlideDuration(0.2f),
 	bPistolSlideMoving(false),
 	MaxPistolSlideDisplacement(4.f),
-	MaxPistolRecoilRotation(20.f)
-
+	MaxPistolRecoilRotation(20.f),
+	bIsAutomatic(true)
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -125,6 +125,8 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			AutomaticFireRate = WeaponRow->AutomaticFireRate;
 			MuzzleFlash = WeaponRow->MuzzleFlash;
 			FireSound = WeaponRow->FireSound;
+
+			bIsAutomatic = WeaponRow->bIsAutomatic;
 		}
 
 		// The glow material is set on the item version but it needs to be overrided since we need different materials for each weapon
