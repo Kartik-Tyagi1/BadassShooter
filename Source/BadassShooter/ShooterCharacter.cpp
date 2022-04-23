@@ -382,7 +382,7 @@ void AShooterCharacter::EndCrosshairShootTimer()
 void AShooterCharacter::AimingButtonPressed()
 {
 	bAimingButtonPressed = true;
-	if (CombatState != ECombatState::ECS_Reloading)
+	if (CombatState != ECombatState::ECS_Reloading && CombatState != ECombatState::ECS_Equipping)
 	{
 		Aim();
 	}
@@ -1113,6 +1113,11 @@ void AShooterCharacter::ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewI
 
 	if (bCanSwap)
 	{
+		if (bIsAiming)
+		{
+			StopAiming();
+		}
+
 		CombatState = ECombatState::ECS_Equipping;
 
 		auto OldWeapon = EquippedWeapon;
@@ -1139,6 +1144,10 @@ void AShooterCharacter::ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewI
 void AShooterCharacter::FinishEquipping()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
+	if (bAimingButtonPressed)
+	{
+		Aim();
+	}
 }
 
 int32 AShooterCharacter::GetEmptyInventorySlot()
