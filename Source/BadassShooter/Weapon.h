@@ -6,16 +6,9 @@
 #include "Item.h"
 #include "AmmoType.h"
 #include "Engine/DataTable.h"
+#include "WeaponType.h"
 #include "Weapon.generated.h"
 
-UENUM(BlueprintType)
-enum class EWeaponType : uint8
-{
-	EWT_AR15			UMETA(DisplayName = "AR-15"),
-	EWT_AssaultRifle	UMETA(DisplayName = "AssaultRifle"),
-
-	EWT_MAX				UMETA(DisplayName = "DefaultMAX")
-};
 
 USTRUCT(BlueprintType)
 struct FWeaponDataTable : public FTableRowBase
@@ -54,6 +47,42 @@ struct FWeaponDataTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 MaterialIndex;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName WeaponMagBoneName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ReloadMontageSectionName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UAnimInstance> AnimBP;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* CrosshairMiddle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* CrosshairLeft;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* CrosshairRight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* CrosshairTop;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* CrosshairBottom;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AutomaticFireRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UParticleSystem* MuzzleFlash;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USoundCue* FireSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsAutomatic;
 };
 
 /**
@@ -72,6 +101,10 @@ protected:
 	void StopFalling();
 
 	virtual void OnConstruction(const FTransform& Transform) override;
+
+	void FinishPistolSlideTimer();
+
+	void UpdateSlideDisplacement();
 
 private:
 	FTimerHandle ThrowWeaponTimer;
@@ -122,6 +155,61 @@ private:
 	/* Used to clear the material index when switching weapon types */
 	int32 PreviousMaterialIndex;
 
+	/* The Following are datatables values */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	UTexture2D* CrosshairMiddle;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	UTexture2D* CrosshairLeft;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	UTexture2D* CrosshairRight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	UTexture2D* CrosshairTop;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	UTexture2D* CrosshairBottom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	float AutomaticFireRate;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* MuzzleFlash;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	USoundCue* FireSound;
+
+	/* The amount the slide has displaced when firing the pistol */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	float PistolSlideDisplacement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	float PistolRecoilRotation;
+
+	/* Curve for how we want to make the pistol slide move */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	UCurveFloat* PistolSlideDisplacementCurve;
+
+	FTimerHandle PistolSlideTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	float PistolSlideDuration;
+
+	bool bPistolSlideMoving;
+
+	/* Scale factor for the pistol slide displacement */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	float MaxPistolSlideDisplacement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pistol, meta = (AllowPrivateAccess = "true"))
+	float MaxPistolRecoilRotation;
+
+	/* Boolean to determine if the weapon shoudl be an automatic fire Weapon */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	bool bIsAutomatic;
+
+
 public:
 	void ThrowWeapon();
 
@@ -142,5 +230,12 @@ public:
 
 	bool ClipIsFull();
 
+	FORCEINLINE float GetAutomaticFireRate() const { return AutomaticFireRate; }
+	FORCEINLINE UParticleSystem* GetMuzzleFlash() const { return MuzzleFlash; }
+	FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
+
+	void StartPistolSlideTimer();
+
+	FORCEINLINE bool GetIsAutomatic() const { return bIsAutomatic; }
 	
 };

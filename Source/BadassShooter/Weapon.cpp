@@ -15,7 +15,14 @@ AWeapon::AWeapon() :
 	AmmoType(EAmmoType::EAT_AR),
 	ReloadMontageSectionName(FName(TEXT("Reload_AssaultRifle"))),
 	WeaponMagBoneName(FName(TEXT("Clip_Bone"))),
-	bIsMagMoving(false)
+	bIsMagMoving(false),
+	PistolSlideDisplacement(0.f),
+	PistolRecoilRotation(0.f),
+	PistolSlideDuration(0.2f),
+	bPistolSlideMoving(false),
+	MaxPistolSlideDisplacement(4.f),
+	MaxPistolRecoilRotation(20.f),
+	bIsAutomatic(true)
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -30,6 +37,9 @@ void AWeapon::Tick(float DeltaTime)
 		const FRotator MeshRotation{ 0.f, GetItemMesh()->GetComponentRotation().Yaw, 0.f };
 		GetItemMesh()->SetWorldRotation(MeshRotation, false, nullptr, ETeleportType::TeleportPhysics);
 	}
+
+	// Update Slide Bone on Pistol when firing pistol
+	UpdateSlideDisplacement();
 }
 
 void AWeapon::ThrowWeapon()
@@ -79,6 +89,9 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		case EWeaponType::EWT_AssaultRifle:
 			WeaponRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName(TEXT("AssaultRifle")), TEXT(""));
 			break;
+		case EWeaponType::EWT_Pistol:
+			WeaponRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName(TEXT("Pistol")), TEXT(""));
+			break;
 		}
 
 		if (WeaponRow)
@@ -97,6 +110,23 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			PreviousMaterialIndex = GetMaterialIndex();
 			GetItemMesh()->SetMaterial(PreviousMaterialIndex, nullptr);
 			SetMaterialIndex(WeaponRow->MaterialIndex);
+
+			WeaponMagBoneName = WeaponRow->WeaponMagBoneName;
+			ReloadMontageSectionName = WeaponRow->ReloadMontageSectionName;
+
+			GetItemMesh()->SetAnimInstanceClass(WeaponRow->AnimBP);
+
+			CrosshairMiddle = WeaponRow->CrosshairMiddle;
+			CrosshairLeft = WeaponRow->CrosshairLeft;
+			CrosshairRight = WeaponRow->CrosshairRight;
+			CrosshairTop = WeaponRow->CrosshairTop;
+			CrosshairBottom = WeaponRow->CrosshairBottom;
+
+			AutomaticFireRate = WeaponRow->AutomaticFireRate;
+			MuzzleFlash = WeaponRow->MuzzleFlash;
+			FireSound = WeaponRow->FireSound;
+
+			bIsAutomatic = WeaponRow->bIsAutomatic;
 		}
 
 		// The glow material is set on the item version but it needs to be overrided since we need different materials for each weapon
@@ -114,6 +144,7 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		}
 	}
 }
+
 
 void AWeapon::DecrementAmmo()
 {
@@ -143,5 +174,27 @@ void AWeapon::UpdateAmmo(int32 Amount)
 bool AWeapon::ClipIsFull()
 {
 	return AmmoInMagazine >= MaximumMagazineCapacity;
+}
+
+void AWeapon::StartPistolSlideTimer()
+{
+	bPistolSlideMoving = true;
+	GetWorldTimerManager().SetTimer(PistolSlideTimer, this, &AWeapon::FinishPistolSlideTimer, PistolSlideDuration);
+}
+
+void AWeapon::FinishPistolSlideTimer()
+{
+	bPistolSlideMoving = false;
+}
+
+void AWeapon::UpdateSlideDisplacement()
+{
+	if (PistolSlideDisplacementCurve && bPistolSlideMoving)
+	{
+		const float ElapsedTime{ GetWorldTimerManager().GetTimerElapsed(PistolSlideTimer) };
+		const float CurveValue{ PistolSlideDisplacementCurve->GetFloatValue(ElapsedTime) };
+		PistolSlideDisplacement = CurveValue * MaxPistolSlideDisplacement;
+		PistolRecoilRotation = CurveValue * MaxPistolRecoilRotation;
+	}
 }
 
