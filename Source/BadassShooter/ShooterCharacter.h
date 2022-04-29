@@ -181,6 +181,10 @@ protected:
 
 	/* Functions that use the highlight delegate to highlight and unlights the weapon slot */
 	void HighlightWeaponSlot();
+
+	/* Does a line trace to get the surface the character is walking on */
+	UFUNCTION(BlueprintCallable)
+	void Footsteps();
 	
 
 public:	
