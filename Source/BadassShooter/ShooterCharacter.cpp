@@ -14,6 +14,8 @@
 #include "Weapon.h"
 #include "Components/CapsuleComponent.h"
 #include "Ammo.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "BadassShooter.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
@@ -1181,7 +1183,7 @@ void AShooterCharacter::UnHighlightWeaponSlot()
 	HighlightedSlot = -1;
 }
 
-void AShooterCharacter::Footsteps()
+EPhysicalSurface AShooterCharacter::GetFoostepsSurface()
 {
 	FHitResult HitResult;
 	const FVector Start{ GetActorLocation() };
@@ -1191,9 +1193,6 @@ void AShooterCharacter::Footsteps()
 
 	GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility, QueryParams);
 
-	if (HitResult.GetActor())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Actor Hit: %s"), *HitResult.GetActor()->GetName());
-	}
+	return UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
 }
 

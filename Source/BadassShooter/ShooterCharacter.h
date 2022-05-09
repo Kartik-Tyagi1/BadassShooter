@@ -184,7 +184,7 @@ protected:
 
 	/* Does a line trace to get the surface the character is walking on */
 	UFUNCTION(BlueprintCallable)
-	void Footsteps();
+	EPhysicalSurface GetFoostepsSurface();
 	
 
 public:	
