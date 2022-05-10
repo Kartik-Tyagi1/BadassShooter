@@ -15,6 +15,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Ammo.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "BulletHitInterface.h"
 #include "BadassShooter.h"
 
 // Sets default values
@@ -464,8 +465,9 @@ void AShooterCharacter::FireWeapon()
 	}
 }
 
-bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)
+bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FHitResult& OutHitResult)
 {
+		FVector OutBeamLocation;
 		// Check for crosshair trace hit
 		FHitResult CrosshairHitResult;
 		bool bCrosshairHit = TraceUnderCrosshairs(CrosshairHitResult, OutBeamLocation);
@@ -481,19 +483,20 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 		}
 
 		// Do second line trace from weapon barrel so determine if anything was hit in between
-		FHitResult WeaponTraceHitResult;
 		const FVector WeaponTraceStart{ MuzzleSocketLocation };
 		const FVector StartToEnd{ OutBeamLocation - WeaponTraceStart };
 		const FVector WeaponTraceEnd{ MuzzleSocketLocation + StartToEnd * 1.25f };	// End of Line Trace (which is the end of the previous line trace)
 
-		GetWorld()->LineTraceSingleByChannel(WeaponTraceHitResult, WeaponTraceStart, WeaponTraceEnd, ECollisionChannel::ECC_Visibility);
-		if (WeaponTraceHitResult.bBlockingHit)
+		GetWorld()->LineTraceSingleByChannel(OutHitResult, WeaponTraceStart, WeaponTraceEnd, ECollisionChannel::ECC_Visibility);
+
+		// We need the hit locatin of the OutHitResult. Since it will store the location we just need to get it to have to OutBeamLocatino when there is no hit
+		if (!OutHitResult.bBlockingHit)
 		{
-			OutBeamLocation = WeaponTraceHitResult.Location;
-			return true;
+			OutHitResult.Location = OutBeamLocation;
+			return false; // Nothing was hit
 		}
 
-	return false;
+	return true; // Something was hit and its location is in the OutHitResult
 }
 
 bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation)
@@ -649,16 +652,31 @@ void AShooterCharacter::SendBullet()
 		}
 
 		FVector BeamEnd_1;
-		FVector BeamEnd_2;
-		bool bBeamEndLocation_1 = GetBeamEndLocation(BarrelSocketTransform_1.GetLocation(), BeamEnd_1);
+		FHitResult BeamEndHitResult;
+		bool bBeamEndLocation_1 = GetBeamEndLocation(BarrelSocketTransform_1.GetLocation(), BeamEndHitResult);
 
 		if (bBeamEndLocation_1)
-		{
-			if (BulletImpactParticles)
+		{ 
+			// If the Actor Hit is a valid actor and is also an actor that contains the bullet hit interface then use the function to play the sound and particles
+			if (BeamEndHitResult.Actor.IsValid())
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, BeamEnd_1);
+				IBulletHitInterface* BulletHitInterface = Cast<IBulletHitInterface>(BeamEndHitResult.Actor.Get());
+				if (BulletHitInterface)
+				{
+					BulletHitInterface->BulletHit_Implementation(BeamEndHitResult);
+				}
+				// Else Play the default particles
+				else
+				{
+					if (BulletImpactParticles)
+					{
+						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletImpactParticles, BeamEndHitResult.Location);
+					}
+				}
 			}
+			
 		}
+	
 	}
 }
 
