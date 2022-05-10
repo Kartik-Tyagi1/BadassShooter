@@ -29,6 +29,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 private:
 	/* Particles to spawn when enemy is hit by bullets */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -38,6 +40,19 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class USoundCue* HitSound;
 
+	/* Current Health of the Enemy */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float Health;
+
+	/* Max health of the enemy */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float MaxHealth;
+
+	/* Name of the Head Bone of the Enemy */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	FString HeadBone;
+
 public:	
+	FORCEINLINE FString GetHeadBone() const { return HeadBone; }
 
 };

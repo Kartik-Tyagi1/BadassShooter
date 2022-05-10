@@ -16,6 +16,7 @@
 #include "Ammo.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "BulletHitInterface.h"
+#include "Enemy.h"
 #include "BadassShooter.h"
 
 // Sets default values
@@ -207,7 +208,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAction("ReloadButton", IE_Pressed, this, &AShooterCharacter::ReloadButtonPressed);
 
-	PlayerInputComponent->BindAction("SwitchCombatButton", IE_Pressed, this, &AShooterCharacter::SwitchCombatButtonPressed);
+	//PlayerInputComponent->BindAction("SwitchCombatButton", IE_Pressed, this, &AShooterCharacter::SwitchCombatButtonPressed);
 
 	PlayerInputComponent->BindAction("CrouchButton", IE_Pressed, this, &AShooterCharacter::CrouchButtonPressed);
 
@@ -664,6 +665,24 @@ void AShooterCharacter::SendBullet()
 				if (BulletHitInterface)
 				{
 					BulletHitInterface->BulletHit_Implementation(BeamEndHitResult);
+
+					AEnemy* HitEnemy = Cast<AEnemy>(BeamEndHitResult.Actor.Get());
+					if (HitEnemy)
+					{
+						if (BeamEndHitResult.BoneName.ToString() == HitEnemy->GetHeadBone())
+						{
+							// Critical Hit
+							UGameplayStatics::ApplyDamage(BeamEndHitResult.Actor.Get(), EquippedWeapon->GetCriticalDamage(), GetController(), this, UDamageType::StaticClass());
+							//UE_LOG(LogTemp, Warning, TEXT("Hit Component: %s"), *BeamEndHitResult.BoneName.ToString());
+						}
+						else
+						{
+							// Regular Hit
+							UGameplayStatics::ApplyDamage(BeamEndHitResult.Actor.Get(), EquippedWeapon->GetDamage(), GetController(), this, UDamageType::StaticClass());
+							//UE_LOG(LogTemp, Warning, TEXT("Hit Component: %s"), *BeamEndHitResult.BoneName.ToString());
+						}
+					}
+
 				}
 				// Else Play the default particles
 				else

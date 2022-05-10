@@ -83,6 +83,12 @@ struct FWeaponDataTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsAutomatic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CriticalDamage;
 };
 
 /**
@@ -209,6 +215,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	bool bIsAutomatic;
 
+	/* Damage done by weapons on general hit area */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	float Damage;
+
+	/* Damage done by weapons on critical areas (headshots, etc.) */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	float CriticalDamage;
+
 
 public:
 	void ThrowWeapon();
@@ -237,5 +251,7 @@ public:
 	void StartPistolSlideTimer();
 
 	FORCEINLINE bool GetIsAutomatic() const { return bIsAutomatic; }
+	FORCEINLINE float GetDamage() const { return Damage; }
+	FORCEINLINE float GetCriticalDamage() const { return CriticalDamage; }
 	
 };
