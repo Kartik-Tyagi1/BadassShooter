@@ -31,6 +31,19 @@ protected:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	/* ShowHealthBar Shows The health bar but this one is implemented in blueprint */
+	/* ShowHealthBar_Implementation Shows The health bar but this one is implemented in C++ and is called in blueprint */
+	UFUNCTION(BlueprintNativeEvent)
+	void ShowHealthBar();
+	void ShowHealthBar_Implementation();
+
+	/* HideHealthBar Hides the health bar and is implemented in blueprint */
+	UFUNCTION(BlueprintImplementableEvent)
+	void HideHealthBar();
+
+	/* Enemy Death Function */
+	void Die();
+
 private:
 	/* Particles to spawn when enemy is hit by bullets */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -51,6 +64,13 @@ private:
 	/* Name of the Head Bone of the Enemy */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	FString HeadBone;
+
+	/* Timer for showing the health bar when the enemy is hit */
+	FTimerHandle HealthBarTimer;
+
+	/* Amount of time the health bar should be displayed after the enemy is not hit */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float HealthBarDisplayTime;
 
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }

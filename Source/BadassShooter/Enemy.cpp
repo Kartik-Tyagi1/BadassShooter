@@ -9,7 +9,8 @@
 // Sets default values
 AEnemy::AEnemy() :
 	Health(100.f),
-	MaxHealth(100.f)
+	MaxHealth(100.f),
+	HealthBarDisplayTime(4.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -50,13 +51,16 @@ void AEnemy::BulletHit_Implementation(FHitResult HitResult)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticles, HitResult.Location, FRotator(0.f), true);
 	}
+
+	ShowHealthBar();
 }
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (Health - DamageAmount < 0)
+	if (Health - DamageAmount <= 0)
 	{
 		Health = 0.f;
+		Die();
 	}
 	else
 	{
@@ -64,5 +68,19 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	}
 	
 	return Health;
+}
+
+void AEnemy::ShowHealthBar_Implementation()
+{
+	// Reset the timer if the enemy is being shot 
+	GetWorldTimerManager().ClearTimer(HealthBarTimer);
+
+	// Only hide if the enemy is not being shot for more than 4 seconds
+	GetWorldTimerManager().SetTimer(HealthBarTimer, this, &AEnemy::HideHealthBar, HealthBarDisplayTime);
+}
+
+void AEnemy::Die()
+{
+	HideHealthBar();
 }
 
