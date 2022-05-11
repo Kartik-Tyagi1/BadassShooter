@@ -44,6 +44,8 @@ protected:
 	/* Enemy Death Function */
 	void Die();
 
+	void PlayHitMontage(FName SectionName, float PlayRate = 1.f);
+
 private:
 	/* Particles to spawn when enemy is hit by bullets */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -71,6 +73,10 @@ private:
 	/* Amount of time the health bar should be displayed after the enemy is not hit */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float HealthBarDisplayTime;
+
+	/* Montage used to play hit and death animations */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HitMontage;
 
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }
