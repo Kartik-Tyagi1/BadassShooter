@@ -25,6 +25,9 @@ public:
 	/* Override of Interface to determine what happens when enemy is hit by bullets */
 	virtual void BulletHit_Implementation(FHitResult HitResult) override;
 
+	/* Callback function to reset bCanHitReact for HitReactTimer*/
+	void ResetHitReactTimer();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -78,7 +81,21 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* HitMontage;
 
+	/* Timer to delay when the hit react anim is played so the enemy doesn't look like its spazzing out when being shot at */
+	FTimerHandle HitReactTimer;
+
+	bool bCanHitReact;
+
+	/* Floats to randomize the delay of the hit react animation*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float HitReactDelayMin;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float HitReactDelayMax;
+
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowHitNumbers(float Damage, FVector HitLocation);
 
 };

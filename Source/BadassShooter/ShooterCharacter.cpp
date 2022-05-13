@@ -669,18 +669,23 @@ void AShooterCharacter::SendBullet()
 					AEnemy* HitEnemy = Cast<AEnemy>(BeamEndHitResult.Actor.Get());
 					if (HitEnemy)
 					{
+						float DamageAmount{};
 						if (BeamEndHitResult.BoneName.ToString() == HitEnemy->GetHeadBone())
 						{
 							// Critical Hit
-							UGameplayStatics::ApplyDamage(BeamEndHitResult.Actor.Get(), EquippedWeapon->GetCriticalDamage(), GetController(), this, UDamageType::StaticClass());
+							DamageAmount = EquippedWeapon->GetCriticalDamage();
+							UGameplayStatics::ApplyDamage(BeamEndHitResult.Actor.Get(), DamageAmount, GetController(), this, UDamageType::StaticClass());
 							//UE_LOG(LogTemp, Warning, TEXT("Hit Component: %s"), *BeamEndHitResult.BoneName.ToString());
 						}
 						else
 						{
 							// Regular Hit
-							UGameplayStatics::ApplyDamage(BeamEndHitResult.Actor.Get(), EquippedWeapon->GetDamage(), GetController(), this, UDamageType::StaticClass());
+							DamageAmount = EquippedWeapon->GetDamage();
+							UGameplayStatics::ApplyDamage(BeamEndHitResult.Actor.Get(), DamageAmount, GetController(), this, UDamageType::StaticClass());
 							//UE_LOG(LogTemp, Warning, TEXT("Hit Component: %s"), *BeamEndHitResult.BoneName.ToString());
 						}
+
+						HitEnemy->ShowHitNumbers(DamageAmount, BeamEndHitResult.Location);
 					}
 
 				}
