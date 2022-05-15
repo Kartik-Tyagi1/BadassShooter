@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 AEnemy::AEnemy() :
@@ -13,7 +14,8 @@ AEnemy::AEnemy() :
 	HealthBarDisplayTime(4.f),
 	bCanHitReact(true),
 	HitReactDelayMin(0.5f),
-	HitReactDelayMax(0.65f)
+	HitReactDelayMax(0.65f),
+	HitNumberDestoryTime(1.5f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -107,6 +109,24 @@ void AEnemy::PlayHitMontage(FName SectionName, float PlayRate)
 		GetWorldTimerManager().SetTimer(HitReactTimer, this, &AEnemy::ResetHitReactTimer, HitReactDelay);
 	}
 	
+}
+
+void AEnemy::StoreHitNumber(UUserWidget* HitNumber, FVector Location)
+{
+	// Add the HitNumber widget when enemy is shot
+	HitNumbers.Add(HitNumber, Location);
+
+	// Remove the hit number after some time 
+	FTimerHandle DestoryHitNumberTimer;
+	FTimerDelegate DestoryHitNumberDelegate;
+	DestoryHitNumberDelegate.BindUFunction(this, FName("DestroyHitNumber"), HitNumber);
+	GetWorldTimerManager().SetTimer(DestoryHitNumberTimer, DestoryHitNumberDelegate, HitNumberDestoryTime, false);
+}
+
+void AEnemy::DestroyHitNumber(UUserWidget* HitNumber)
+{
+	HitNumbers.Remove(HitNumber);
+	HitNumber->RemoveFromParent();
 }
 
 void AEnemy::ResetHitReactTimer()

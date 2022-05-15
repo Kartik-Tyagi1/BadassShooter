@@ -47,7 +47,17 @@ protected:
 	/* Enemy Death Function */
 	void Die();
 
+	/* Function to play hit react
+	   TODO: Calculate Direction of hit and play correct Section
+	*/
 	void PlayHitMontage(FName SectionName, float PlayRate = 1.f);
+
+	UFUNCTION(BlueprintCallable)
+	void StoreHitNumber(UUserWidget* HitNumber, FVector Location);
+
+	/* Callback for the RemoveHitNumberTimer in the StoreHitNumber Function */
+	UFUNCTION()
+	void DestroyHitNumber(UUserWidget* HitNumber);
 
 private:
 	/* Particles to spawn when enemy is hit by bullets */
@@ -91,6 +101,15 @@ private:
 	float HitReactDelayMin;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float HitReactDelayMax;
+
+	/* TMap to store hit number and its location */
+	UPROPERTY(VisibleAnywhere, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	TMap<UUserWidget*, FVector> HitNumbers;
+
+	/* Time after which hit number is removed from TMAP and display */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float HitNumberDestoryTime;
+
 
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }
