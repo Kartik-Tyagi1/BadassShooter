@@ -118,6 +118,6 @@ public:
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void ShowHitNumbers(float Damage, FVector HitLocation);
+	void ShowHitNumbers(float Damage, FVector HitLocation, bool bIsHeadShot);
 
 };

@@ -676,6 +676,7 @@ void AShooterCharacter::SendBullet()
 							DamageAmount = EquippedWeapon->GetCriticalDamage();
 							UGameplayStatics::ApplyDamage(BeamEndHitResult.Actor.Get(), DamageAmount, GetController(), this, UDamageType::StaticClass());
 							//UE_LOG(LogTemp, Warning, TEXT("Hit Component: %s"), *BeamEndHitResult.BoneName.ToString());
+							HitEnemy->ShowHitNumbers(DamageAmount, BeamEndHitResult.Location, true);
 						}
 						else
 						{
@@ -683,9 +684,10 @@ void AShooterCharacter::SendBullet()
 							DamageAmount = EquippedWeapon->GetDamage();
 							UGameplayStatics::ApplyDamage(BeamEndHitResult.Actor.Get(), DamageAmount, GetController(), this, UDamageType::StaticClass());
 							//UE_LOG(LogTemp, Warning, TEXT("Hit Component: %s"), *BeamEndHitResult.BoneName.ToString());
+							HitEnemy->ShowHitNumbers(DamageAmount, BeamEndHitResult.Location, false);
 						}
 
-						HitEnemy->ShowHitNumbers(DamageAmount, BeamEndHitResult.Location);
+						
 					}
 
 				}
