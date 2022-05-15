@@ -59,6 +59,9 @@ protected:
 	UFUNCTION()
 	void DestroyHitNumber(UUserWidget* HitNumber);
 
+	/* Function to keep hit numbers at the location of shot */
+	void UpdateHitNumbers();
+
 private:
 	/* Particles to spawn when enemy is hit by bullets */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))

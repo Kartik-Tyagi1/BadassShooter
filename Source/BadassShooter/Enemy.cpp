@@ -36,6 +36,8 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UpdateHitNumbers();
+
 }
 
 // Called to bind functionality to input
@@ -127,6 +129,19 @@ void AEnemy::DestroyHitNumber(UUserWidget* HitNumber)
 {
 	HitNumbers.Remove(HitNumber);
 	HitNumber->RemoveFromParent();
+}
+
+void AEnemy::UpdateHitNumbers()
+{
+	for (auto& HitPair : HitNumbers)
+	{
+		UUserWidget* HitNumber{ HitPair.Key };
+		const FVector Location{ HitPair.Value };
+
+		FVector2D ScreenLocation;
+		UGameplayStatics::ProjectWorldToScreen(GetWorld()->GetFirstPlayerController(), Location, ScreenLocation);
+		HitNumber->SetPositionInViewport(ScreenLocation);
+	}
 }
 
 void AEnemy::ResetHitReactTimer()
