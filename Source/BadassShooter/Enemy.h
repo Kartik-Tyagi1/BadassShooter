@@ -117,6 +117,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Behavior Tree", meta = (AllowPrivateAccess = "true"))
 	class UBehaviorTree* BehaviorTree;
 
+	/* Location where enemy will move to and patrol */
+	UPROPERTY(EditAnywhere, Category = "Behavior Tree", meta = (AllowPrivateAccess = "true", MakeEditWidget = "true"))
+	FVector PatrolPoint;
+
+	/* Reference to enemy controller class */
+	class AEnemyController* EnemyController;
+
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
