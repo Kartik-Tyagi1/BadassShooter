@@ -14,4 +14,15 @@ class BADASSSHOOTER_API UGruxAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 	
+public:
+	/* Tick of the AnimInstance Class */
+	UFUNCTION(BlueprintCallable)
+	void UpdateAnimationProperties(float DeltaTime);
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class AEnemy* Enemy;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float Speed;
 };
