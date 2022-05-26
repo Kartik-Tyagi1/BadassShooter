@@ -62,6 +62,9 @@ protected:
 	/* Function to keep hit numbers at the location of shot */
 	void UpdateHitNumbers();
 
+	UFUNCTION()
+	void AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 private:
 	/* Particles to spawn when enemy is hit by bullets */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -127,6 +130,10 @@ private:
 
 	/* Reference to enemy controller class */
 	class AEnemyController* EnemyController;
+
+	/* Sphere component to determine when the enemy should become hostile (aka agro) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* AgroSphere;
 
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }
