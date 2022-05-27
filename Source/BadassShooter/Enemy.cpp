@@ -21,7 +21,9 @@ AEnemy::AEnemy() :
 	bCanHitReact(true),
 	HitReactDelayMin(0.5f),
 	HitReactDelayMax(0.65f),
-	HitNumberDestoryTime(1.5f)
+	HitNumberDestoryTime(1.5f),
+	bIsStunned(false),
+	StunChance(0.5f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -90,7 +92,13 @@ void AEnemy::BulletHit_Implementation(FHitResult HitResult)
 	}
 
 	ShowHealthBar();
-	PlayHitMontage(FName("HitReactFront"));
+	const float Stunned = FMath::RandRange(0.f, 1.f);
+	// The lower the stun chance the harder it is to stun since the chance of getting a lower number from the range decreases
+	if (Stunned < StunChance)
+	{
+		SetStunned(true);
+		PlayHitMontage(FName("HitReactFront"));
+	}
 }
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -182,6 +190,16 @@ void AEnemy::AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	if (Character)
 	{
 		EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), Character);
+	}
+}
+
+void AEnemy::SetStunned(bool Stunned)
+{
+	bIsStunned = Stunned;
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("Stunned"), Stunned);
 	}
 }
 
