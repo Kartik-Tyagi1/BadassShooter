@@ -12,6 +12,8 @@
 #include "DrawDebugHelpers.h"
 #include "Components/SphereComponent.h"
 #include "ShooterCharacter.h"
+#include "Components/CapsuleComponent.h"
+
 
 // Sets default values
 AEnemy::AEnemy() :
@@ -23,7 +25,11 @@ AEnemy::AEnemy() :
 	HitReactDelayMax(0.65f),
 	HitNumberDestoryTime(1.5f),
 	bIsStunned(false),
-	StunChance(0.5f)
+	StunChance(0.5f),
+	AttackLFast(TEXT("AttackLFast")),
+	AttackRFast(TEXT("AttackRFast")),
+	AttackL(TEXT("AttackL")),
+	AttackR(TEXT("AttackR"))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -48,6 +54,8 @@ void AEnemy::BeginPlay()
 	AttackRangeSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::AttackRangeSphereEndOverlap);
 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
 	// Get AI Controller
 	EnemyController = Cast<AEnemyController>(GetController());
@@ -239,6 +247,40 @@ void AEnemy::AttackRangeSphereEndOverlap(UPrimitiveComponent* OverlappedComponen
 			}
 		}
 	}
+}
+
+void AEnemy::PlayAttackMontage(FName SectionName, float PlayRate)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && AttackMontage)
+	{
+		AnimInstance->Montage_Play(AttackMontage, PlayRate);
+		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
+	}
+}
+
+FName AEnemy::GetAttackSectionName()
+{
+	FName SectionName;
+	const int32 SectionNumber{ FMath::RandRange(1,4) };
+
+	switch (SectionNumber)
+	{
+	case 1:
+		SectionName = AttackLFast;
+		break;
+	case 2:
+		SectionName = AttackRFast;
+		break;
+	case 3:
+		SectionName = AttackL;
+		break;
+	case 4:
+		SectionName = AttackR;
+		break;
+	}
+
+	return SectionName;
 }
 
 void AEnemy::ResetHitReactTimer()

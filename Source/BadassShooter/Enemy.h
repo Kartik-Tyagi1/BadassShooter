@@ -74,6 +74,14 @@ protected:
 	UFUNCTION()
 	void AttackRangeSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	/* Function to play attack anims for enemy */
+	UFUNCTION(BlueprintCallable)
+	void PlayAttackMontage(FName SectionName, float PlayRate = 1.f);
+
+	/* Tunction that returns a random integer between 1-4 to determine which attack montage section to play */
+	UFUNCTION(BlueprintPure) // This one does not have an execution pin, it's just a function node that returns a value 
+	FName GetAttackSectionName();
+
 private:
 	/* Particles to spawn when enemy is hit by bullets */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -159,6 +167,18 @@ private:
 	/* Sphere componenet to dertermine when the enemy should start attacking */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	USphereComponent* AttackRangeSphere;
+
+	/* Montage used to play attacking animations */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* AttackMontage;
+
+	/* Montage Section Names for the Attack Montage*/
+	FName AttackLFast;
+	FName AttackRFast;
+	FName AttackL;
+	FName AttackR;
+
+
 
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }
