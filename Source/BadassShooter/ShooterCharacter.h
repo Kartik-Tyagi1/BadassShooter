@@ -194,6 +194,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 private:
 
 	/*------------------------------- CHARACTER COMPONENETS --------------------------------------------------------*/
@@ -461,6 +463,17 @@ private:
 
 	/* Slot that is currently being highlighted in the inventory */
 	int32 HighlightedSlot;
+
+	/*------------------------------------------------------------ Health -----------------------------------------------------------------*/
+
+	/* Current Health of the Shooter Character */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
+	float Health;
+
+	/* Max Health the shooter character can have */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
+	float MaxHealth;
+
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }

@@ -77,7 +77,10 @@ AShooterCharacter::AShooterCharacter() :
 	PickupSoundWaitDuration(0.1f),
 	EquipSoundWaitDuration(0.1f),
 	// Iventory Property
-	HighlightedSlot(-1)
+	HighlightedSlot(-1),
+	// Health
+	Health(100.f),
+	MaxHealth(100.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -219,6 +222,20 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("4Key", IE_Pressed, this, &AShooterCharacter::FourKeyPressed);
 	PlayerInputComponent->BindAction("5Key", IE_Pressed, this, &AShooterCharacter::FiveKeyPressed);
 
+}
+
+float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (Health - DamageAmount <= 0.f)
+	{
+		Health = 0.f;
+	}
+	else
+	{
+		Health -= DamageAmount;
+	}
+
+	return DamageAmount;
 }
 
 void AShooterCharacter::SetCameraFOV(float DeltaTime)
