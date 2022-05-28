@@ -474,6 +474,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
 	float MaxHealth;
 
+	/* Sound that will play when the character is hit by melee weapon */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
+	class USoundCue* MeleeImpactSound;
+
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
@@ -519,4 +523,6 @@ public:
 	void UnHighlightWeaponSlot();
 
 	FORCEINLINE AWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
+
+	FORCEINLINE USoundCue* GetMeleeImpactSound() const { return MeleeImpactSound; }
 };
