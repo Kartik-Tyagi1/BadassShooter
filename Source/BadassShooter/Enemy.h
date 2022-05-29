@@ -98,7 +98,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void DeactivateRightWeaponCollision();
 
-	void DoDamage(AActor* Victim);
+	void DoDamage(class AShooterCharacter* Victim);
+	void SpawnVictimBlood(AShooterCharacter* Victim, FName SocketName);
 
 private:
 	/* Particles to spawn when enemy is hit by bullets */
@@ -207,6 +208,12 @@ private:
 	/* Base damage the enemy can inflict */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float BaseDamage;
+
+	/* These FNames are used to determine where to play the victims blood particles when the victim is attacked by enemy weapons */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	FName RightWeaponTopSocket;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	FName LeftWeaponTopSocket;
 
 
 public:	
