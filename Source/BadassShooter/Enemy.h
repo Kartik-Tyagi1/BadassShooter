@@ -100,6 +100,7 @@ protected:
 
 	void DoDamage(class AShooterCharacter* Victim);
 	void SpawnVictimBlood(AShooterCharacter* Victim, FName SocketName);
+	void StunVictim(AShooterCharacter* Victim);
 
 private:
 	/* Particles to spawn when enemy is hit by bullets */

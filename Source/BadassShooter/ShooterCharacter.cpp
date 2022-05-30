@@ -78,9 +78,10 @@ AShooterCharacter::AShooterCharacter() :
 	EquipSoundWaitDuration(0.1f),
 	// Iventory Property
 	HighlightedSlot(-1),
-	// Health
+	// Health/HitReact
 	Health(100.f),
-	MaxHealth(100.f)
+	MaxHealth(100.f),
+	StunChance(0.25f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -403,7 +404,7 @@ void AShooterCharacter::EndCrosshairShootTimer()
 void AShooterCharacter::AimingButtonPressed()
 {
 	bAimingButtonPressed = true;
-	if (CombatState != ECombatState::ECS_Reloading && CombatState != ECombatState::ECS_Equipping)
+	if (CombatState != ECombatState::ECS_Reloading && CombatState != ECombatState::ECS_Equipping && CombatState != ECombatState::ECS_Stunned)
 	{
 		Aim();
 	}
@@ -446,6 +447,10 @@ void AShooterCharacter::StartAutoFireTimer()
 
 void AShooterCharacter::AutoFireTimerReset()
 {
+	// Player should not be able to shoot when stunned 
+	if (CombatState == ECombatState::ECS_Stunned) return; 
+
+
 	CombatState = ECombatState::ECS_Unoccupied;
 	if (EquippedWeapon == nullptr) return;
 	if (WeaponHasAmmo())
@@ -924,6 +929,9 @@ void AShooterCharacter::ReloadWeapon()
 
 void AShooterCharacter::FinishReloading()
 {
+	// Player should not be able to finish reloading if stunned when when reloading 
+	if (CombatState == ECombatState::ECS_Stunned) return;
+
 	CombatState = ECombatState::ECS_Unoccupied;
 	if (EquippedWeapon == nullptr) return;
 
@@ -1172,7 +1180,7 @@ void AShooterCharacter::FiveKeyPressed()
 void AShooterCharacter::ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewItemIndex)
 {
 					// Cannot Switch Item with same item   Cannot Switch item with slot that has nothing in it		// Swtich while switching
-	bool bCanSwap = (CurrentItemIndex != NewItemIndex) && (NewItemIndex < Inventory.Num()) && (CombatState != ECombatState::ECS_Unoccupied || CombatState != ECombatState::ECS_Equipping);
+	bool bCanSwap = (CurrentItemIndex != NewItemIndex) && (NewItemIndex < Inventory.Num()) && (CombatState == ECombatState::ECS_Unoccupied || CombatState == ECombatState::ECS_Equipping);
 
 	if (bCanSwap)
 	{
@@ -1206,6 +1214,9 @@ void AShooterCharacter::ExchangeInventoryItem(int32 CurrentItemIndex, int32 NewI
 
 void AShooterCharacter::FinishEquipping()
 {
+	// Player should not be able to finish equipping when stunned 
+	if (CombatState == ECombatState::ECS_Stunned) return;
+
 	CombatState = ECombatState::ECS_Unoccupied;
 	if (bAimingButtonPressed)
 	{
@@ -1244,6 +1255,18 @@ void AShooterCharacter::UnHighlightWeaponSlot()
 	HighlightedSlot = -1;
 }
 
+void AShooterCharacter::Stun()
+{
+	CombatState = ECombatState::ECS_Stunned;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HitReactMontage)
+	{
+		AnimInstance->Montage_Play(HitReactMontage);
+		// TODO: Add other section and play 
+	}
+}
+
 EPhysicalSurface AShooterCharacter::GetFoostepsSurface()
 {
 	FHitResult HitResult;
@@ -1255,5 +1278,15 @@ EPhysicalSurface AShooterCharacter::GetFoostepsSurface()
 	GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility, QueryParams);
 
 	return UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
+}
+
+void AShooterCharacter::EndStun()
+{
+	CombatState = ECombatState::ECS_Unoccupied;
+
+	if (bAimingButtonPressed)
+	{
+		Aim();
+	}
 }
 

@@ -16,6 +16,7 @@ enum class ECombatState : uint8
 	ECS_FireTImerInProgress		UMETA(DisplayName = "FireTImerInProgress"),
 	ECS_Reloading				UMETA(DisplayName = "Reloading"),
 	ECS_Equipping				UMETA(DisplayName = "Equipping"),
+	ECS_Stunned					UMETA(DisplayName = "Stunned"),
 
 	ECS_MAX						UMETA(DisplayName = "DefaultMAX")
 
@@ -185,6 +186,10 @@ protected:
 	/* Does a line trace to get the surface the character is walking on */
 	UFUNCTION(BlueprintCallable)
 	EPhysicalSurface GetFoostepsSurface();
+
+	// Function that ends the stunned combat state
+	UFUNCTION(BlueprintCallable)
+	void EndStun();
 	
 
 public:	
@@ -464,7 +469,7 @@ private:
 	/* Slot that is currently being highlighted in the inventory */
 	int32 HighlightedSlot;
 
-	/*------------------------------------------------------------ Health -----------------------------------------------------------------*/
+	/*------------------------------------------------------------ Health/HitReact -----------------------------------------------------------------*/
 
 	/* Current Health of the Shooter Character */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
@@ -481,6 +486,14 @@ private:
 	/* Blood particles to play when character is hit */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* BloodParticles;
+
+	/* Montage to play when character it hit */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HitReactMontage;
+
+	/* Chance for enemy to stun the character */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
+	float StunChance;
 
 
 public:
@@ -531,4 +544,7 @@ public:
 	FORCEINLINE USoundCue* GetMeleeImpactSound() const { return MeleeImpactSound; }
 
 	FORCEINLINE UParticleSystem* GetBloodParticles() const { return BloodParticles; }
+
+	void Stun();
+	FORCEINLINE float GetStunChance() const { return StunChance; }
 };

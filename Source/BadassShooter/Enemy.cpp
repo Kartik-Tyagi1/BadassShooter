@@ -319,6 +319,7 @@ void AEnemy::LeftWeaponCollisionOverlap(UPrimitiveComponent* OverlappedComponent
 	{
 		DoDamage(Character);
 		SpawnVictimBlood(Character, LeftWeaponTopSocket);
+		StunVictim(Character);
 	}
 }
 
@@ -331,6 +332,7 @@ void AEnemy::RightWeaponCollisionOverlap(UPrimitiveComponent* OverlappedComponen
 	{
 		DoDamage(Character);
 		SpawnVictimBlood(Character, RightWeaponTopSocket);
+		StunVictim(Character);
 	}
 }
 
@@ -381,6 +383,17 @@ void AEnemy::SpawnVictimBlood(AShooterCharacter* Victim, FName SocketName)
 
 	}
 	
+}
+
+void AEnemy::StunVictim(AShooterCharacter* Victim)
+{
+	if (Victim == nullptr) return;
+
+	const float StunnedAttempt{ FMath::RandRange(0.f, 1.f) };
+	if (StunnedAttempt <= Victim->GetStunChance())
+	{
+		Victim->Stun();
+	}
 }
 
 void AEnemy::ResetHitReactTimer()
