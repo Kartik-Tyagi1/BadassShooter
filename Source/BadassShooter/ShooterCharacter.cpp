@@ -18,6 +18,8 @@
 #include "BulletHitInterface.h"
 #include "Enemy.h"
 #include "BadassShooter.h"
+#include "EnemyController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
@@ -230,6 +232,13 @@ float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 	if (Health - DamageAmount <= 0.f)
 	{
 		Health = 0.f;
+		Die();
+
+		auto EnemyController = Cast<AEnemyController>(EventInstigator);
+		if (EnemyController)
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsCharacterDead"), true);
+		}
 	}
 	else
 	{
@@ -1257,6 +1266,8 @@ void AShooterCharacter::UnHighlightWeaponSlot()
 
 void AShooterCharacter::Stun()
 {
+	if (Health <= 0.f) return; // Do not stun if dying 
+
 	CombatState = ECombatState::ECS_Stunned;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -1288,5 +1299,25 @@ void AShooterCharacter::EndStun()
 	{
 		Aim();
 	}
+}
+
+void AShooterCharacter::Die()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && DeathMontage)
+	{
+		AnimInstance->Montage_Play(DeathMontage);
+	}
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (PC)
+	{
+		DisableInput(PC);
+	}
+}
+
+void AShooterCharacter::FinishDeath()
+{
+	GetMesh()->bPauseAnims = true;
 }
 

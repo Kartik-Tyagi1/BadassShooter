@@ -190,6 +190,11 @@ protected:
 	// Function that ends the stunned combat state
 	UFUNCTION(BlueprintCallable)
 	void EndStun();
+
+	void Die();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishDeath();
 	
 
 public:	
@@ -494,6 +499,10 @@ private:
 	/* Chance for enemy to stun the character */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
 	float StunChance;
+
+	/* Montage to play when character it hit */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* DeathMontage;
 
 
 public:
