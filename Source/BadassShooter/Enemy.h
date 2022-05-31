@@ -123,7 +123,7 @@ private:
 	class USoundCue* HitSound;
 
 	/* Current Health of the Enemy */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float Health;
 
 	/* Max health of the enemy */
@@ -234,7 +234,7 @@ private:
 	/* Timer that handles the reseting of the CanAttack Boolean*/
 	FTimerHandle AttackWaitTimer;
 
-	UPROPERTY(EditAnywhere, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float AttackWaitDuration;
 
 	/* Death animation for the enemy */
