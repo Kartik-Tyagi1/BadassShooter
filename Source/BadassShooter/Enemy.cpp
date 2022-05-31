@@ -152,6 +152,15 @@ void AEnemy::BulletHit_Implementation(FHitResult HitResult)
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	// Agro Enemy when shot by shooter character
+	if (DamageCauser)
+	{
+		if (EnemyController)
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), DamageCauser);
+		}
+	}
+
 	if (Health - DamageAmount <= 0)
 	{
 		Health = 0.f;
