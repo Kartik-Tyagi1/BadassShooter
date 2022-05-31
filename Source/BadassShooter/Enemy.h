@@ -102,6 +102,9 @@ protected:
 	void SpawnVictimBlood(AShooterCharacter* Victim, FName SocketName);
 	void StunVictim(AShooterCharacter* Victim);
 
+	/* Callback for the AttackWaitTimer */
+	void ResetCanAttack();
+
 private:
 	/* Particles to spawn when enemy is hit by bullets */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -215,6 +218,16 @@ private:
 	FName RightWeaponTopSocket;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	FName LeftWeaponTopSocket;
+
+	/* Boolean to determine if enemy can attack when player exits attack sphere so enemy does not spam */
+	UPROPERTY(VisibleAnywhere, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	bool bCanAttack;
+
+	/* Timer that handles the reseting of the CanAttack Boolean*/
+	FTimerHandle AttackWaitTimer;
+
+	UPROPERTY(EditAnywhere, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float AttackWaitDuration;
 
 
 public:	

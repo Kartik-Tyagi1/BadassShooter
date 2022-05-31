@@ -33,7 +33,9 @@ AEnemy::AEnemy() :
 	AttackR(TEXT("AttackR")),
 	BaseDamage(10.f),
 	RightWeaponTopSocket(TEXT("FX_Trail_R_01")),
-	LeftWeaponTopSocket(TEXT("FX_Trail_L_01"))
+	LeftWeaponTopSocket(TEXT("FX_Trail_L_01")),
+	bCanAttack(true),
+	AttackWaitDuration(1.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -86,6 +88,12 @@ void AEnemy::BeginPlay()
 
 	// Get AI Controller
 	EnemyController = Cast<AEnemyController>(GetController());
+
+	// Set Can attack to true in blackboard
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), true);
+	}
 
 	// The patrol point location is local to the enemy location. This line transforms that location from local location to world location
 	FVector WorldPatrolPoint = UKismetMathLibrary::TransformLocation(GetActorTransform(), PatrolPoint);
@@ -284,6 +292,14 @@ void AEnemy::PlayAttackMontage(FName SectionName, float PlayRate)
 		AnimInstance->Montage_Play(AttackMontage, PlayRate);
 		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
 	}
+
+	bCanAttack = false; // Make enemy wait for next attack
+	GetWorldTimerManager().SetTimer(AttackWaitTimer, this, &AEnemy::ResetCanAttack, AttackWaitDuration);
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), false);
+	}
 }
 
 FName AEnemy::GetAttackSectionName()
@@ -396,8 +412,19 @@ void AEnemy::StunVictim(AShooterCharacter* Victim)
 	}
 }
 
+void AEnemy::ResetCanAttack()
+{
+	bCanAttack = true;
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), true);
+	}
+}
+
 void AEnemy::ResetHitReactTimer()
 {
 	bCanHitReact = true;
+
 }
 
