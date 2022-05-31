@@ -103,7 +103,15 @@ protected:
 	void StunVictim(AShooterCharacter* Victim);
 
 	/* Callback for the AttackWaitTimer */
+	UFUNCTION()
 	void ResetCanAttack();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishEnemyDeath();
+
+	/* Call back function for the DestroyBodyTimer*/
+	UFUNCTION()
+	void DestroyEnemy();
 
 private:
 	/* Particles to spawn when enemy is hit by bullets */
@@ -228,6 +236,18 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float AttackWaitDuration;
+
+	/* Death animation for the enemy */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* DeathMontage;
+
+	/* Boolean to prevent the enemy from being killed muliple times after it should be dead */
+	bool bIsDying;
+
+	/* Timer to destroy the dead enemy after some time */
+	FTimerHandle DestroyBodyTimer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float DestroyBodyWaitTime;
 
 
 public:	

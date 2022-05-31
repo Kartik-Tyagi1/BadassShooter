@@ -35,7 +35,9 @@ AEnemy::AEnemy() :
 	RightWeaponTopSocket(TEXT("FX_Trail_R_01")),
 	LeftWeaponTopSocket(TEXT("FX_Trail_L_01")),
 	bCanAttack(true),
-	AttackWaitDuration(1.f)
+	AttackWaitDuration(1.f),
+	bIsDying(false),
+	DestroyBodyWaitTime(4.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -93,6 +95,7 @@ void AEnemy::BeginPlay()
 	if (EnemyController)
 	{
 		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), true);
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), false);
 	}
 
 	// The patrol point location is local to the enemy location. This line transforms that location from local location to world location
@@ -140,6 +143,9 @@ void AEnemy::BulletHit_Implementation(FHitResult HitResult)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticles, HitResult.Location, FRotator(0.f), true);
 	}
 
+	// Do not do rest of this function is the enemy is dying 
+	if (bIsDying) return;
+
 	ShowHealthBar();
 	const float Stunned = FMath::RandRange(0.f, 1.f);
 	// The lower the stun chance the harder it is to stun since the chance of getting a lower number from the range decreases
@@ -185,7 +191,24 @@ void AEnemy::ShowHealthBar_Implementation()
 
 void AEnemy::Die()
 {
+	// Do not  do into this function unless the enemy is dying
+	if (bIsDying) return;
+	bIsDying = true; // Now that its true this function will not be called again
+
 	HideHealthBar();
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && DeathMontage)
+	{
+		AnimInstance->Montage_Play(DeathMontage);
+		// TODO: Add other death montages 
+	}
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), true);
+		EnemyController->StopMovement();
+	}
 }
 
 void AEnemy::PlayHitMontage(FName SectionName, float PlayRate)
@@ -429,6 +452,18 @@ void AEnemy::ResetCanAttack()
 	{
 		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), true);
 	}
+}
+
+void AEnemy::FinishEnemyDeath()
+{
+	GetMesh()->bPauseAnims = true;
+
+	GetWorldTimerManager().SetTimer(DestroyBodyTimer, this, &AEnemy::DestroyEnemy, DestroyBodyWaitTime);
+}
+
+void AEnemy::DestroyEnemy()
+{
+	Destroy();
 }
 
 void AEnemy::ResetHitReactTimer()
