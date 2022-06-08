@@ -23,7 +23,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/* Override of Interface to determine what happens when enemy is hit by bullets */
-	virtual void BulletHit_Implementation(FHitResult HitResult) override;
+	virtual void BulletHit_Implementation(FHitResult HitResult, AActor* Shooter, AController* ShooterController) override;
 
 	/* Callback function to reset bCanHitReact for HitReactTimer*/
 	void ResetHitReactTimer();

@@ -93,8 +93,11 @@ void AEnemy::BeginPlay()
 	// Set Can attack to true in blackboard
 	if (EnemyController)
 	{
-		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), true);
-		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), false);
+		if (EnemyController->GetBlackboardComponent())
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), true);
+			EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), false);
+		}
 	}
 
 	// The patrol point location is local to the enemy location. This line transforms that location from local location to world location
@@ -104,11 +107,13 @@ void AEnemy::BeginPlay()
 
 	if (EnemyController)
 	{
-		EnemyController->GetBlackboardComponent()->SetValueAsVector(TEXT("PatrolPoint"), WorldPatrolPoint);
-		EnemyController->GetBlackboardComponent()->SetValueAsVector(TEXT("PatrolPoint2"), WorldPatrolPoint2);
-		EnemyController->RunBehaviorTree(BehaviorTree);
+		if (EnemyController->GetBlackboardComponent())
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsVector(TEXT("PatrolPoint"), WorldPatrolPoint);
+			EnemyController->GetBlackboardComponent()->SetValueAsVector(TEXT("PatrolPoint2"), WorldPatrolPoint2);
+			EnemyController->RunBehaviorTree(BehaviorTree);
+		}
 	}
-	
 }
 
 // Called every frame
@@ -127,7 +132,7 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
-void AEnemy::BulletHit_Implementation(FHitResult HitResult)
+void AEnemy::BulletHit_Implementation(FHitResult HitResult, AActor* Shooter, AController* ShooterController)
 {
 	if (HitSound)
 	{
@@ -159,7 +164,10 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	{
 		if (EnemyController)
 		{
-			EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), DamageCauser);
+			if (EnemyController->GetBlackboardComponent())
+			{
+				EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), DamageCauser);
+			}
 		}
 	}
 
@@ -202,8 +210,11 @@ void AEnemy::Die()
 
 	if (EnemyController)
 	{
-		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), true);
-		EnemyController->StopMovement();
+		if (EnemyController->GetBlackboardComponent())
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), true);
+			EnemyController->StopMovement();
+		}
 	}
 }
 
@@ -266,7 +277,13 @@ void AEnemy::AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	auto Character = Cast<AShooterCharacter>(OtherActor);
 	if (Character)
 	{
-		EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), Character);
+		if (EnemyController)
+		{
+			if (EnemyController->GetBlackboardComponent())
+			{
+				EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), Character);
+			}
+		}
 	}
 }
 
@@ -276,7 +293,10 @@ void AEnemy::SetStunned(bool Stunned)
 
 	if (EnemyController)
 	{
-		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("Stunned"), Stunned);
+		if (EnemyController->GetBlackboardComponent())
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("Stunned"), Stunned);
+		}
 	}
 }
 
@@ -290,7 +310,10 @@ void AEnemy::AttackRangeSphereBeginOverlap(UPrimitiveComponent* OverlappedCompon
 			bIsInAttackRange = true;
 			if (EnemyController)
 			{
-				EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bIsInAttackRange);
+				if (EnemyController->GetBlackboardComponent())
+				{
+					EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bIsInAttackRange);
+				}
 			}
 		}
 	}
@@ -306,7 +329,10 @@ void AEnemy::AttackRangeSphereEndOverlap(UPrimitiveComponent* OverlappedComponen
 			bIsInAttackRange = false;
 			if (EnemyController)
 			{
-				EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bIsInAttackRange);
+				if (EnemyController->GetBlackboardComponent())
+				{
+					EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bIsInAttackRange);
+				}
 			}
 		}
 	}
@@ -326,7 +352,10 @@ void AEnemy::PlayAttackMontage(FName SectionName, float PlayRate)
 
 	if (EnemyController)
 	{
-		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), false);
+		if (EnemyController->GetBlackboardComponent())
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), false);
+		}
 	}
 }
 
@@ -446,7 +475,10 @@ void AEnemy::ResetCanAttack()
 
 	if (EnemyController)
 	{
-		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), true);
+		if (EnemyController->GetBlackboardComponent())
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("CanAttack"), true);
+		}
 	}
 }
 

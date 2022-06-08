@@ -695,7 +695,7 @@ void AShooterCharacter::SendBullet()
 				IBulletHitInterface* BulletHitInterface = Cast<IBulletHitInterface>(BeamEndHitResult.Actor.Get());
 				if (BulletHitInterface)
 				{
-					BulletHitInterface->BulletHit_Implementation(BeamEndHitResult);
+					BulletHitInterface->BulletHit_Implementation(BeamEndHitResult, this, GetController());
 
 					AEnemy* HitEnemy = Cast<AEnemy>(BeamEndHitResult.Actor.Get());
 					if (HitEnemy)
